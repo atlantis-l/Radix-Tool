@@ -19,19 +19,19 @@ test("Radix Wallet Generator", async () => {
   expect(result.address).toBe(wallet.address);
   expect(result.publicKey).toBe(wallet.publicKey);
 
-  const start = Date.now();
+  // const start = Date.now();
 
-  for (let i = 0; i < 10000; i++) {
-    //Test No.1
-    // await RadixWalletGenerator.generateNewWallet(networkId);
-    //Test No.2
-    await RadixWalletGenerator.generateWalletByPrivateKey(
-      networkId,
-      wallet.privateKey
-    );
-  }
+  // for (let i = 0; i < 10000; i++) {
+  //   //Test No.1
+  //   await RadixWalletGenerator.generateNewWallet(networkId);
+  //   //Test No.2
+  //   await RadixWalletGenerator.generateWalletByPrivateKey(
+  //     networkId,
+  //     wallet.privateKey,
+  //   );
+  // }
 
-  const end = Date.now();
+  // const end = Date.now();
 
-  console.log(`Time:${(end - start) / 1000}s`);
+  // console.log(`Time:${(end - start) / 1000}s`);
 });
