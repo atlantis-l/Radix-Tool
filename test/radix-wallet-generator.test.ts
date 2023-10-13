@@ -9,15 +9,15 @@ test("Radix Wallet Generator", async () => {
 
   assert(wallet.privateKey !== undefined);
 
-  console.log(wallet);
+  // console.log(wallet);
 
   const result = await RadixWalletGenerator.generateWalletByPrivateKey(
     networkId,
-    wallet.privateKey,
+    wallet.privateKeyHexString(),
   );
 
   expect(result.address).toBe(wallet.address);
-  expect(result.publicKey).toBe(wallet.publicKey);
+  expect(result.publicKey.hexString()).toBe(wallet.publicKey.hexString());
 
   // const start = Date.now();
 
@@ -27,7 +27,7 @@ test("Radix Wallet Generator", async () => {
   //   //Test No.2
   //   await RadixWalletGenerator.generateWalletByPrivateKey(
   //     networkId,
-  //     wallet.privateKey,
+  //     wallet.privateKeyHexString(),
   //   );
   // }
 

@@ -1,2 +1,3 @@
 export * from "./gateway-api";
-export * from "./common-result";
+export * from "./result";
+export * from "./function";

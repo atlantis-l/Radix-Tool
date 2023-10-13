@@ -1,14 +1,13 @@
 enum Status {
   SUCCESS,
   FAIL,
+  DUPLICATE_TX,
 }
 
 class Result {
-  status: Status | undefined;
-  message: string | undefined;
-  constructor(status: Status, message?: string | undefined) {
+  status: Status;
+  constructor(status: Status) {
     this.status = status;
-    this.message = message;
   }
 }
 
