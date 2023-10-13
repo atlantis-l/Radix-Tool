@@ -4,10 +4,11 @@ const jestConfig: JestConfigWithTsJest = {
   preset: "ts-jest",
   testTimeout: 10000,
   testMatch: [
-    "**/test/free-xrd-from-faucet.test.ts",
-    "**/test/radix-wallet-generator.test.ts",
-    "**/test/xrd-transfer.test.ts",
-    // "**/test/*.test.ts",
+    // "**/test/manifest-convert.test.ts",
+    // "**/test/free-xrd-from-faucet.test.ts",
+    // "**/test/radix-wallet-generator.test.ts",
+    // "**/test/xrd-transfer.test.ts",
+    "**/test/*.test.ts",
   ],
 };
 

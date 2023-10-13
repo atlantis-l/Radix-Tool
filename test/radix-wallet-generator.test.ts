@@ -2,17 +2,17 @@ import assert from "assert";
 import { RadixWalletGenerator } from "../src";
 import { NetworkId } from "@radixdlt/radix-engine-toolkit";
 
-const networkId = NetworkId.Stokenet;
+const NETWORK_ID = NetworkId.Stokenet;
 
 test("Radix Wallet Generator", async () => {
-  const wallet = await RadixWalletGenerator.generateNewWallet(networkId);
+  const wallet = await RadixWalletGenerator.generateNewWallet(NETWORK_ID);
 
   assert(wallet.privateKey !== undefined);
 
   // console.log(wallet);
 
   const result = await RadixWalletGenerator.generateWalletByPrivateKey(
-    networkId,
+    NETWORK_ID,
     wallet.privateKeyHexString(),
   );
 
