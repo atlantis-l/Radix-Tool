@@ -8,16 +8,9 @@ import {
   expression,
   Expression,
 } from "@radixdlt/radix-engine-toolkit";
-import {
-  calculateFee,
-  getCurrentEpoch,
-  selectNetwork,
-  RadixWalletGenerator,
-} from "../src";
+import { calculateFee, getCurrentEpoch, RadixWalletGenerator } from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
-
-const NETWORK_API = selectNetwork(NETWORK_ID);
 
 const privateKey =
   "c2de054684b1f81199803355e6080ef416bbfed34c759e1bb2aade89d572dfdd";
@@ -51,10 +44,10 @@ test("Transaction Preview", async () => {
   //TODO
   const fee = await calculateFee(
     NETWORK_ID,
-    await getCurrentEpoch(NETWORK_API),
+    await getCurrentEpoch(NETWORK_ID),
     manifest,
     wallet.publicKey,
   );
 
-  // console.log(fee);
+  console.log(fee);
 });

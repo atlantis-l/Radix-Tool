@@ -11,7 +11,6 @@ import { NETWORK_API } from "./gateway-api";
 import { DUPLICATE_RESULT, FAIL_RESULT, SUCCESS_RESULT } from "./result";
 import { TransactionSubmitter } from "../tools";
 import {
-  GatewayApiClient,
   PublicKeyEddsaEd25519KeyTypeEnum,
   TransactionPreviewOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
@@ -23,8 +22,8 @@ function selectNetwork(networkId: number) {
     : NETWORK_API.STOKENET_API;
 }
 
-async function getCurrentEpoch(NETWORK_API: GatewayApiClient) {
-  const currentStatus = await NETWORK_API.status.getCurrent();
+async function getCurrentEpoch(networkId: number) {
+  const currentStatus = await selectNetwork(networkId).status.getCurrent();
   return currentStatus.ledger_state.epoch;
 }
 
@@ -36,7 +35,7 @@ async function processTransaction(
     const NETWORK_API = selectNetwork(networkId);
 
     const transaction = await generateTransaction(
-      await f(await getCurrentEpoch(NETWORK_API)),
+      await f(await getCurrentEpoch(networkId)),
     );
 
     const result = await TransactionSubmitter.submit(NETWORK_API, transaction);
