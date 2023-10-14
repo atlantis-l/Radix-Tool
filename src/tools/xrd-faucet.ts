@@ -1,12 +1,13 @@
 import {
+  Expression,
   ManifestBuilder,
   NetworkId,
   RadixEngineToolkit,
   TransactionBuilder,
   TransactionHeader,
-  bucket,
   decimal,
   enumeration,
+  expression,
   generateRandomNonce,
 } from "@radixdlt/radix-engine-toolkit";
 import { processTransaction } from "../common";
@@ -19,7 +20,6 @@ class XRDFaucet {
     return processTransaction(NETWORK_ID, async (currentEpoch) => {
       const {
         componentAddresses: { faucet: FAUCET_ADDRESS },
-        resourceAddresses: { xrd: XRD_ADDRESS },
       } = await RadixEngineToolkit.Utils.knownAddresses(NETWORK_ID);
 
       const wallet = await new RadixWalletGenerator(
@@ -39,12 +39,10 @@ class XRDFaucet {
       const manifest = new ManifestBuilder()
         .callMethod(FAUCET_ADDRESS, "lock_fee", [decimal("10")])
         .callMethod(FAUCET_ADDRESS, "free", [])
-        .takeAllFromWorktop(XRD_ADDRESS, (builder, bucketId) => {
-          return builder.callMethod(toAddress, "try_deposit_or_abort", [
-            bucket(bucketId),
-            enumeration(0),
-          ]);
-        })
+        .callMethod(toAddress, "try_deposit_batch_or_abort", [
+          expression(Expression.EntireWorktop),
+          enumeration(0),
+        ])
         .build();
 
       return TransactionBuilder.new().then((builder) =>

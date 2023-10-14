@@ -1,11 +1,12 @@
 import {
   ManifestBuilder,
   address,
-  bucket,
   decimal,
   enumeration,
   NetworkId,
   RadixEngineToolkit,
+  expression,
+  Expression,
 } from "@radixdlt/radix-engine-toolkit";
 import {
   calculateFee,
@@ -13,7 +14,6 @@ import {
   selectNetwork,
   RadixWalletGenerator,
 } from "../src";
-import Decimal from "decimal.js";
 
 const NETWORK_ID = NetworkId.Stokenet;
 
@@ -42,12 +42,10 @@ test("Transaction Preview", async () => {
       address(XRD_ADDRESS),
       decimal(amount),
     ])
-    .takeFromWorktop(XRD_ADDRESS, new Decimal(amount), (builder, bucketId) => {
-      return builder.callMethod(toAddress, "try_deposit_or_abort", [
-        bucket(bucketId),
-        enumeration(0),
-      ]);
-    })
+    .callMethod(toAddress, "try_deposit_batch_or_abort", [
+      expression(Expression.EntireWorktop),
+      enumeration(0),
+    ])
     .build();
 
   //TODO

@@ -1,12 +1,13 @@
 import {
   Amount,
+  Expression,
   ManifestBuilder,
   TransactionBuilder,
   TransactionHeader,
   address,
-  bucket,
   decimal,
   enumeration,
+  expression,
   generateRandomNonce,
 } from "@radixdlt/radix-engine-toolkit";
 import { processTransaction } from "../common";
@@ -45,12 +46,10 @@ class TokenSender {
           address(tokenAddress),
           decimal(amount),
         ])
-        .takeAllFromWorktop(tokenAddress, (builder, bucketId) => {
-          return builder.callMethod(toAddress, "try_deposit_or_abort", [
-            bucket(bucketId),
-            enumeration(0),
-          ]);
-        })
+        .callMethod(toAddress, "try_deposit_batch_or_abort", [
+          expression(Expression.EntireWorktop),
+          enumeration(0),
+        ])
         .build();
 
       return TransactionBuilder.new().then((builder) =>
