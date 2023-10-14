@@ -11,7 +11,6 @@ import {
 } from "@radixdlt/radix-engine-toolkit";
 import { processTransaction } from "../common";
 import { Wallet } from "../models";
-import Decimal from "decimal.js";
 
 const DEFAULT_FEE_LOCK = "10";
 
@@ -46,16 +45,12 @@ class TokenSender {
           address(tokenAddress),
           decimal(amount),
         ])
-        .takeFromWorktop(
-          tokenAddress,
-          new Decimal(amount),
-          (builder, bucketId) => {
-            return builder.callMethod(toAddress, "try_deposit_or_abort", [
-              bucket(bucketId),
-              enumeration(0),
-            ]);
-          },
-        )
+        .takeAllFromWorktop(tokenAddress, (builder, bucketId) => {
+          return builder.callMethod(toAddress, "try_deposit_or_abort", [
+            bucket(bucketId),
+            enumeration(0),
+          ]);
+        })
         .build();
 
       return TransactionBuilder.new().then((builder) =>

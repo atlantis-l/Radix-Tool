@@ -11,11 +11,8 @@ import {
 } from "@radixdlt/radix-engine-toolkit";
 import { processTransaction } from "../common";
 import { RadixWalletGenerator } from "../tools";
-import Decimal from "decimal.js";
 
 const NETWORK_ID = NetworkId.Stokenet;
-
-const RECEIVE_AMOUNT = new Decimal("10000");
 
 class XRDFaucet {
   static async getXRD(toAddress: string) {
@@ -42,7 +39,7 @@ class XRDFaucet {
       const manifest = new ManifestBuilder()
         .callMethod(FAUCET_ADDRESS, "lock_fee", [decimal("10")])
         .callMethod(FAUCET_ADDRESS, "free", [])
-        .takeFromWorktop(XRD_ADDRESS, RECEIVE_AMOUNT, (builder, bucketId) => {
+        .takeAllFromWorktop(XRD_ADDRESS, (builder, bucketId) => {
           return builder.callMethod(toAddress, "try_deposit_or_abort", [
             bucket(bucketId),
             enumeration(0),
