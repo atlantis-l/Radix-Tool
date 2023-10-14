@@ -10,7 +10,11 @@ import {
 import { NETWORK_API } from "./gateway-api";
 import { DUPLICATE_RESULT, FAIL_RESULT, SUCCESS_RESULT } from "./result";
 import { TransactionSubmitter } from "../tools";
-import { TransactionPreviewOperationRequest } from "@radixdlt/babylon-gateway-api-sdk";
+import {
+  GatewayApiClient,
+  PublicKeyEddsaEd25519KeyTypeEnum,
+  TransactionPreviewOperationRequest,
+} from "@radixdlt/babylon-gateway-api-sdk";
 import Decimal from "decimal.js";
 
 function selectNetwork(networkId: number) {
@@ -19,17 +23,21 @@ function selectNetwork(networkId: number) {
     : NETWORK_API.STOKENET_API;
 }
 
-async function process(
-  networkId: number | undefined,
-  f: (currentEpoch: number) => Promise<CompiledNotarizedTransaction>,
+async function getCurrentEpoch(NETWORK_API: GatewayApiClient) {
+  const currentStatus = await NETWORK_API.status.getCurrent();
+  return currentStatus.ledger_state.epoch;
+}
+
+async function processTransaction(
+  networkId: number,
+  f: (currentEpoch: number) => Promise<NotarizedTransaction>,
 ) {
   try {
-    //@ts-ignore
     const NETWORK_API = selectNetwork(networkId);
 
-    const currentStatus = await NETWORK_API.status.getCurrent();
-
-    const transaction = await f(currentStatus.ledger_state.epoch);
+    const transaction = await generateTransaction(
+      await f(await getCurrentEpoch(NETWORK_API)),
+    );
 
     const result = await TransactionSubmitter.submit(NETWORK_API, transaction);
 
@@ -40,9 +48,7 @@ async function process(
   }
 }
 
-async function generateTransaction(f: () => Promise<NotarizedTransaction>) {
-  const transaction = await f();
-
+async function generateTransaction(transaction: NotarizedTransaction) {
   const intentHash =
     await RadixEngineToolkit.NotarizedTransaction.intentHash(transaction);
 
@@ -62,15 +68,13 @@ async function generateTransaction(f: () => Promise<NotarizedTransaction>) {
 }
 
 async function calculateFee(
-  networkId: number | undefined,
+  networkId: number,
   currentEpoch: number,
   manifest: TransactionManifest,
   publicKey: PublicKey,
 ) {
-  //@ts-ignore
   const NETWORK_API = selectNetwork(networkId);
 
-  //@ts-ignore
   await convertManifestTo("String", manifest, networkId);
 
   const request: TransactionPreviewOperationRequest = {
@@ -80,7 +84,7 @@ async function calculateFee(
       start_epoch_inclusive: currentEpoch,
       end_epoch_exclusive: currentEpoch + 2,
       notary_public_key: {
-        key_type: "EddsaEd25519",
+        key_type: PublicKeyEddsaEd25519KeyTypeEnum.EddsaEd25519,
         key_hex: publicKey.hexString(),
       },
       notary_is_signatory: true,
@@ -88,7 +92,7 @@ async function calculateFee(
       nonce: generateRandomNonce(),
       signer_public_keys: [
         {
-          key_type: "EddsaEd25519",
+          key_type: PublicKeyEddsaEd25519KeyTypeEnum.EddsaEd25519,
           key_hex: publicKey.hexString(),
         },
       ],
@@ -135,7 +139,8 @@ async function convertManifestTo(
 export {
   generateTransaction,
   selectNetwork,
-  process,
+  processTransaction,
   calculateFee,
   convertManifestTo,
+  getCurrentEpoch,
 };

@@ -35,5 +35,5 @@ test("Manifest Convert", async () => {
 
   expect(manifest.instructions.kind).toBe("String");
 
-  console.log(manifest.instructions.value);
+  // console.log(manifest.instructions.value);
 });
