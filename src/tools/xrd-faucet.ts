@@ -11,7 +11,7 @@ import {
   generateRandomNonce,
 } from "@radixdlt/radix-engine-toolkit";
 import { processTransaction } from "../common";
-import { RadixWalletGenerator } from "../tools";
+import { RadixWalletGenerator } from "./radix-wallet-generator";
 
 const NETWORK_ID = NetworkId.Stokenet;
 

@@ -7,13 +7,13 @@ import {
   PublicKey,
   TransactionManifest,
 } from "@radixdlt/radix-engine-toolkit";
-import { NETWORK_API } from "./gateway-api";
-import { DUPLICATE_RESULT, FAIL_RESULT, SUCCESS_RESULT } from "./result";
 import {
   GatewayApiClient,
   PublicKeyEddsaEd25519KeyTypeEnum,
   TransactionPreviewOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
+import { DUPLICATE_RESULT, FAIL_RESULT, SUCCESS_RESULT } from "./common-result";
+import { NETWORK_API } from "./gateway-api";
 import Decimal from "decimal.js";
 
 function selectNetwork(networkId: number) {

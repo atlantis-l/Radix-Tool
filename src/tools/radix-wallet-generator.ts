@@ -3,7 +3,6 @@ import {
   PublicKey,
   RadixEngineToolkit,
 } from "@radixdlt/radix-engine-toolkit";
-
 import { ed25519 } from "@noble/curves/ed25519";
 import { Wallet } from "../models";
 
