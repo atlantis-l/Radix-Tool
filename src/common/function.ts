@@ -9,8 +9,8 @@ import {
 } from "@radixdlt/radix-engine-toolkit";
 import { NETWORK_API } from "./gateway-api";
 import { DUPLICATE_RESULT, FAIL_RESULT, SUCCESS_RESULT } from "./result";
-import { TransactionSubmitter } from "../tools";
 import {
+  GatewayApiClient,
   PublicKeyEddsaEd25519KeyTypeEnum,
   TransactionPreviewOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
@@ -25,26 +25,6 @@ function selectNetwork(networkId: number) {
 async function getCurrentEpoch(networkId: number) {
   const currentStatus = await selectNetwork(networkId).status.getCurrent();
   return currentStatus.ledger_state.epoch;
-}
-
-async function processTransaction(
-  networkId: number,
-  f: (currentEpoch: number) => Promise<NotarizedTransaction>,
-) {
-  try {
-    const NETWORK_API = selectNetwork(networkId);
-
-    const transaction = await generateTransaction(
-      await f(await getCurrentEpoch(networkId)),
-    );
-
-    const result = await TransactionSubmitter.submit(NETWORK_API, transaction);
-
-    return result.duplicate ? DUPLICATE_RESULT : SUCCESS_RESULT;
-  } catch (e) {
-    console.error(e);
-    return FAIL_RESULT;
-  }
 }
 
 async function generateTransaction(transaction: NotarizedTransaction) {
@@ -64,6 +44,37 @@ async function generateTransaction(transaction: NotarizedTransaction) {
     compiled,
     notarizedTransactionHash,
   );
+}
+
+async function submitTransaction(
+  networkApi: GatewayApiClient,
+  transaction: CompiledNotarizedTransaction,
+) {
+  return networkApi.transaction.innerClient.transactionSubmit({
+    transactionSubmitRequest: {
+      notarized_transaction_hex: transaction.toHex(),
+    },
+  });
+}
+
+async function processTransaction(
+  networkId: number,
+  f: (currentEpoch: number) => Promise<NotarizedTransaction>,
+) {
+  try {
+    const NETWORK_API = selectNetwork(networkId);
+
+    const transaction = await generateTransaction(
+      await f(await getCurrentEpoch(networkId)),
+    );
+
+    const result = await submitTransaction(NETWORK_API, transaction);
+
+    return result.duplicate ? DUPLICATE_RESULT : SUCCESS_RESULT;
+  } catch (e) {
+    console.error(e);
+    return FAIL_RESULT;
+  }
 }
 
 async function calculateFee(
