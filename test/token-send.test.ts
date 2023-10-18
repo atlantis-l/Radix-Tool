@@ -12,13 +12,13 @@ const feePayerPrivateKey =
   "fad00ca5423259eed376222b69db92d535c8c6a7a642fabed5049e5c3f5e99c7";
 
 const toAddress =
-  "account_tdx_2_12yj5zqaljqcxhhgd77h9gvgjs2t8l4fz346gkknat4mxgfaadvd622";
+  "account_tdx_2_12x36yex0ufyjn43xr85vn4jq89yuz8wdsssw2gh4g3jp4lxfdsp27h";
 
 const amount = "100";
 
-const message = "Hello Radix!";
-
 test("XRD Transfer", async () => {
+  const message = "XRD Transfer";
+
   const {
     resourceAddresses: { xrd: XRD_ADDRESS },
   } = await RadixEngineToolkit.Utils.knownAddresses(NETWORK_ID);
@@ -37,6 +37,30 @@ test("XRD Transfer", async () => {
     toAddress,
     XRD_ADDRESS,
     amount,
+    message,
+  );
+
+  expect(result.status).toBe(Status.SUCCESS);
+});
+
+const NFT_ADDRESS =
+  "resource_tdx_2_1n22a2xx6yyx4dfwzg8s7cgrnyvdc69fr7n9swm6d8vuj658mgvz694";
+
+const localIds = ["#14#", "#15#"];
+
+test("NonFungible Transfer", async () => {
+  const message = "NonFungible Transfer";
+
+  const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
+
+  const sender = new TokenSender(NETWORK_ID, wallet);
+
+  sender.feeLock = "5";
+
+  const result = await sender.sendNonFungible(
+    toAddress,
+    NFT_ADDRESS,
+    localIds,
     message,
   );
 

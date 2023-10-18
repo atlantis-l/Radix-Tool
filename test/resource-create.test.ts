@@ -16,9 +16,9 @@ const WalletGenerator = new RadixWalletGenerator(NETWORK_ID);
 const privateKey =
   "c2de054684b1f81199803355e6080ef416bbfed34c759e1bb2aade89d572dfdd";
 
-const message = "Deploy NonFungible Resource";
+test("Create Fungible", async () => {
+  const message = "Create Fungible";
 
-test("Create Non Fungible", async () => {
   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
 
   await processTransaction(NETWORK_ID, async (currentEpoch) => {
@@ -32,14 +32,55 @@ test("Create Non Fungible", async () => {
       tipPercentage: 0,
     };
 
-    const rtm = readFileSync(
-      path.join(__dirname.replace("test", "rtm"), "create-non-fungible.rtm"),
+    const manifestString = readFileSync(
+      path.join(__dirname, "radix-transaction-manifest/create-fungible.rtm"),
     ).toString("utf8");
 
     const manifest: TransactionManifest = {
       instructions: {
         kind: "String",
-        value: rtm,
+        value: manifestString,
+      },
+      blobs: [],
+    };
+
+    return TransactionBuilder.new().then((builder) =>
+      builder
+        .header(header)
+        .plainTextMessage(message)
+        .manifest(manifest)
+        .notarize(wallet.privateKey),
+    );
+  });
+});
+
+test("Create Non Fungible", async () => {
+  const message = "Create Non Fungible";
+
+  const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
+
+  await processTransaction(NETWORK_ID, async (currentEpoch) => {
+    const header: TransactionHeader = {
+      networkId: NETWORK_ID,
+      startEpochInclusive: currentEpoch,
+      endEpochExclusive: currentEpoch + 2,
+      nonce: generateRandomNonce(),
+      notaryPublicKey: wallet.publicKey,
+      notaryIsSignatory: true,
+      tipPercentage: 0,
+    };
+
+    const manifestString = readFileSync(
+      path.join(
+        __dirname,
+        "radix-transaction-manifest/create-non-fungible.rtm",
+      ),
+    ).toString("utf8");
+
+    const manifest: TransactionManifest = {
+      instructions: {
+        kind: "String",
+        value: manifestString,
       },
       blobs: [],
     };
