@@ -28,7 +28,12 @@ class TokenSender {
     this.feeLock = DEFAULT_FEE_LOCK;
   }
 
-  async sendFungible(toAddress: string, tokenAddress: string, amount: Amount) {
+  async sendFungible(
+    toAddress: string,
+    tokenAddress: string,
+    amount: Amount,
+    message: string | undefined,
+  ) {
     return processTransaction(this.networkId, async (currentEpoch) => {
       const header: TransactionHeader = {
         networkId: this.networkId,
@@ -52,13 +57,16 @@ class TokenSender {
         ])
         .build();
 
-      return TransactionBuilder.new().then((builder) =>
-        builder
-          .header(header)
+      return TransactionBuilder.new().then((builder) => {
+        const transactionBuilderManifestStep = builder.header(header);
+        if (message !== undefined) {
+          transactionBuilderManifestStep.plainTextMessage(message);
+        }
+        return transactionBuilderManifestStep
           .manifest(manifest)
           .sign(this.feePayer.privateKey)
-          .notarize(this.wallet.privateKey),
-      );
+          .notarize(this.wallet.privateKey);
+      });
     });
   }
 

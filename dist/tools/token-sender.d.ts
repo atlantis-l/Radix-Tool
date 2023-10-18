@@ -6,6 +6,6 @@ declare class TokenSender {
     feePayer: Wallet;
     feeLock: string;
     constructor(networkId: number, wallet: Wallet);
-    sendFungible(toAddress: string, tokenAddress: string, amount: Amount): Promise<import("../models/result").Result>;
+    sendFungible(toAddress: string, tokenAddress: string, amount: Amount, message: string | undefined): Promise<import("../models/result").Result>;
 }
 export { TokenSender };

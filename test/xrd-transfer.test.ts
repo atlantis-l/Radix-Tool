@@ -16,6 +16,8 @@ const toAddress =
 
 const amount = "100";
 
+const message = "Hello Radix!";
+
 test("XRD Transfer", async () => {
   const {
     resourceAddresses: { xrd: XRD_ADDRESS },
@@ -31,7 +33,12 @@ test("XRD Transfer", async () => {
   sender.feePayer = feePayer;
   sender.feeLock = "5";
 
-  const result = await sender.sendFungible(toAddress, XRD_ADDRESS, amount);
+  const result = await sender.sendFungible(
+    toAddress,
+    XRD_ADDRESS,
+    amount,
+    message,
+  );
 
   expect(result.status).toBe(Status.SUCCESS);
 });
