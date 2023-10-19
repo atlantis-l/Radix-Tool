@@ -4,11 +4,8 @@ enum Status {
   DUPLICATE_TX,
 }
 
-class Result {
+interface Result {
   status: Status;
-  constructor(status: Status) {
-    this.status = status;
-  }
 }
 
 export { Result, Status };
