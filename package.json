@@ -1,6 +1,6 @@
 {
   "name": "radix-tool",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A tool to interact with the radix network",
   "main": "dist/radix-tool.umd.cjs",
   "types": "dist/index.d.ts",
