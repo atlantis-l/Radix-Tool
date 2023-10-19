@@ -1,3 +1,4 @@
+import { Amount } from "@radixdlt/radix-engine-toolkit";
 import { Wallet } from "./wallet";
 
 enum TokenType {
@@ -10,7 +11,7 @@ interface CustomOption {
   toAddress: string;
   tokenType: TokenType;
   tokenAddress: string;
-  amount?: string;
+  amount?: Amount;
   nonFungibleLocalIds?: string[];
 }
 
