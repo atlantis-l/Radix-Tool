@@ -3,8 +3,7 @@ declare enum Status {
     FAIL = 1,
     DUPLICATE_TX = 2
 }
-declare class Result {
+interface Result {
     status: Status;
-    constructor(status: Status);
 }
 export { Result, Status };

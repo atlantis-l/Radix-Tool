@@ -1,5 +1,5 @@
 import { Amount } from "@radixdlt/radix-engine-toolkit";
-import { Wallet } from "../models";
+import { CustomOption, Wallet } from "../models";
 declare class TokenSender {
     networkId: number;
     wallet: Wallet;
@@ -8,5 +8,6 @@ declare class TokenSender {
     constructor(networkId: number, wallet: Wallet);
     sendFungible(toAddress: string, tokenAddress: string, amount: Amount, message: string | undefined): Promise<import("../models/result").Result>;
     sendNonFungible(toAddress: string, tokenAddress: string, nonFungibleLocalIds: string[], message: string | undefined): Promise<import("../models/result").Result>;
+    sendCustom(customOptions: CustomOption[], message: string | undefined): Promise<import("../models/result").Result>;
 }
 export { TokenSender };
