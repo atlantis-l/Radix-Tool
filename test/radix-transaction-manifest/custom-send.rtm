@@ -1,0 +1,84 @@
+CALL_METHOD
+    Address("account_tdx_2_1294v3qk9kg2v9q2xtgsv3yeqzudev9kkew93jqha8phcg6wsz0tzd4")
+    "lock_fee"
+    Decimal("10")
+;
+CALL_METHOD
+    Address("account_tdx_2_1294v3qk9kg2v9q2xtgsv3yeqzudev9kkew93jqha8phcg6wsz0tzd4")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#12#"),
+        NonFungibleLocalId("#13#"),
+        NonFungibleLocalId("#14#")
+    )
+;
+CALL_METHOD
+    Address("account_tdx_2_1294v3qk9kg2v9q2xtgsv3yeqzudev9kkew93jqha8phcg6wsz0tzd4")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("10000")
+;
+CALL_METHOD
+    Address("account_tdx_2_12yj5zqaljqcxhhgd77h9gvgjs2t8l4fz346gkknat4mxgfaadvd622")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("8888")
+;
+CALL_METHOD
+    Address("account_tdx_2_12yj5zqaljqcxhhgd77h9gvgjs2t8l4fz346gkknat4mxgfaadvd622")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#16#"),
+        NonFungibleLocalId("#17#")
+    )
+;
+CALL_METHOD
+    Address("account_tdx_2_12x36yex0ufyjn43xr85vn4jq89yuz8wdsssw2gh4g3jp4lxfdsp27h")
+    "try_deposit_batch_or_abort"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_tdx_2_1294v3qk9kg2v9q2xtgsv3yeqzudev9kkew93jqha8phcg6wsz0tzd4")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("9999")
+;
+CALL_METHOD
+    Address("account_tdx_2_1294v3qk9kg2v9q2xtgsv3yeqzudev9kkew93jqha8phcg6wsz0tzd4")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#16#"),
+        NonFungibleLocalId("#17#")
+    )
+;
+CALL_METHOD
+    Address("account_tdx_2_12yj5zqaljqcxhhgd77h9gvgjs2t8l4fz346gkknat4mxgfaadvd622")
+    "try_deposit_batch_or_abort"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;
+CALL_METHOD
+    Address("account_tdx_2_12yj5zqaljqcxhhgd77h9gvgjs2t8l4fz346gkknat4mxgfaadvd622")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("7777")
+;
+CALL_METHOD
+    Address("account_tdx_2_12yj5zqaljqcxhhgd77h9gvgjs2t8l4fz346gkknat4mxgfaadvd622")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#14#"),
+        NonFungibleLocalId("#12#")
+    )
+;
+CALL_METHOD
+    Address("account_tdx_2_1294v3qk9kg2v9q2xtgsv3yeqzudev9kkew93jqha8phcg6wsz0tzd4")
+    "try_deposit_batch_or_abort"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

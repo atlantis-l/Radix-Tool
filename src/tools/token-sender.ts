@@ -14,24 +14,24 @@ import {
   nonFungibleLocalId,
 } from "@radixdlt/radix-engine-toolkit";
 import { processTransaction } from "../common";
-import { CustomOption, Wallet, TokenType } from "../models";
+import { CustomOption, Wallet, TokenType, TransferInfo } from "../models";
 
 const DEFAULT_FEE_LOCK = "10";
 
 class TokenSender {
   networkId: number;
   mainWallet: Wallet;
-  feePayer: Wallet;
+  feePayerWallet: Wallet;
   feeLock: string;
 
   constructor(networkId: number, mainWallet: Wallet) {
     this.networkId = networkId;
     this.mainWallet = mainWallet;
-    this.feePayer = mainWallet;
+    this.feePayerWallet = mainWallet;
     this.feeLock = DEFAULT_FEE_LOCK;
   }
 
-  async sendFungible(
+  async sendFungibleToken(
     toAddress: string,
     tokenAddress: string,
     amount: Amount,
@@ -42,16 +42,20 @@ class TokenSender {
         {
           fromWallet: this.mainWallet,
           toAddress: toAddress,
-          tokenType: TokenType.FUNGIBLE,
-          tokenAddress: tokenAddress,
-          amount: amount,
+          transferInfos: [
+            {
+              tokenType: TokenType.FUNGIBLE,
+              tokenAddress: tokenAddress,
+              amount: amount,
+            },
+          ],
         },
       ],
       message,
     );
   }
 
-  async sendNonFungible(
+  async sendNonFungibleToken(
     toAddress: string,
     tokenAddress: string,
     nonFungibleLocalIds: string[],
@@ -62,9 +66,30 @@ class TokenSender {
         {
           fromWallet: this.mainWallet,
           toAddress: toAddress,
-          tokenType: TokenType.NONFUNGIBLE,
-          tokenAddress: tokenAddress,
-          nonFungibleLocalIds: nonFungibleLocalIds,
+          transferInfos: [
+            {
+              tokenType: TokenType.NONFUNGIBLE,
+              tokenAddress: tokenAddress,
+              nonFungibleLocalIds: nonFungibleLocalIds,
+            },
+          ],
+        },
+      ],
+      message,
+    );
+  }
+
+  async sendTokens(
+    toAddress: string,
+    transferInfos: TransferInfo[],
+    message: string | undefined,
+  ) {
+    return this.sendCustom(
+      [
+        {
+          fromWallet: this.mainWallet,
+          toAddress: toAddress,
+          transferInfos: transferInfos,
         },
       ],
       message,
@@ -84,60 +109,83 @@ class TokenSender {
       };
 
       const manifestBuilder = new ManifestBuilder().callMethod(
-        this.feePayer.address,
+        this.feePayerWallet.address,
         "lock_fee",
         [decimal(this.feeLock)],
       );
 
+      const toAddressMap: Map<string, CustomOption[]> = new Map();
+
       customOptions.forEach((option) => {
-        if (option.tokenType === TokenType.FUNGIBLE) {
-          manifestBuilder.callMethod(option.fromWallet.address, "withdraw", [
-            address(option.tokenAddress),
-            //@ts-ignore
-            decimal(option.amount),
-          ]);
-        } else if (option.tokenType === TokenType.NONFUNGIBLE) {
-          const nonFungibleIdArray: Value = {
-            kind: ValueKind.Array,
-            elementValueKind: ValueKind.NonFungibleLocalId,
-            //@ts-ignore
-            elements: option.nonFungibleLocalIds.map((id) =>
-              nonFungibleLocalId(id),
-            ),
-          };
+        const options = toAddressMap.get(option.toAddress);
 
-          manifestBuilder.callMethod(
-            option.fromWallet.address,
-            "withdraw_non_fungibles",
-            [address(option.tokenAddress), nonFungibleIdArray],
-          );
+        if (options === undefined) {
+          toAddressMap.set(option.toAddress, [option]);
+        } else if (options !== undefined) {
+          options.push(option);
         }
+      });
 
-        manifestBuilder.callMethod(
-          option.toAddress,
-          "try_deposit_batch_or_abort",
-          [expression(Expression.EntireWorktop), enumeration(0)],
-        );
+      toAddressMap.forEach((options, toAddress) => {
+        options.forEach((option) => {
+          option.transferInfos.forEach((info) => {
+            if (info.tokenType === TokenType.FUNGIBLE) {
+              manifestBuilder.callMethod(
+                option.fromWallet.address,
+                "withdraw",
+                [
+                  address(info.tokenAddress),
+                  //@ts-ignore
+                  decimal(info.amount),
+                ],
+              );
+            } else if (info.tokenType === TokenType.NONFUNGIBLE) {
+              const nonFungibleIdArray: Value = {
+                kind: ValueKind.Array,
+                elementValueKind: ValueKind.NonFungibleLocalId,
+                //@ts-ignore
+                elements: info.nonFungibleLocalIds.map((id) =>
+                  nonFungibleLocalId(id),
+                ),
+              };
+              manifestBuilder.callMethod(
+                option.fromWallet.address,
+                "withdraw_non_fungibles",
+                [address(info.tokenAddress), nonFungibleIdArray],
+              );
+            }
+          });
+        });
+
+        manifestBuilder.callMethod(toAddress, "try_deposit_batch_or_abort", [
+          expression(Expression.EntireWorktop),
+          enumeration(0),
+        ]);
       });
 
       const manifest = manifestBuilder.build();
 
       return TransactionBuilder.new().then((builder) => {
         const manifestStep = builder.header(header);
+
         if (message !== undefined) {
           manifestStep.plainTextMessage(message);
         }
 
         const intentSignaturesStep = manifestStep.manifest(manifest);
 
-        customOptions.forEach((option) => {
-          if (option.fromWallet.address !== this.feePayer.address) {
-            intentSignaturesStep.sign(option.fromWallet.privateKey);
+        const walletSet = new Set(
+          customOptions.map((option) => option.fromWallet),
+        );
+
+        walletSet.forEach((wallet) => {
+          if (wallet.address !== this.feePayerWallet.address) {
+            intentSignaturesStep.sign(wallet.privateKey);
           }
         });
 
         return intentSignaturesStep
-          .sign(this.feePayer.privateKey)
+          .sign(this.feePayerWallet.privateKey)
           .notarize(this.mainWallet.privateKey);
       });
     });

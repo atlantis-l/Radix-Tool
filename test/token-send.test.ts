@@ -31,15 +31,15 @@ test("XRD Transfer", async () => {
 
   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
 
-  const feePayer =
+  const feePayerWallet =
     await WalletGenerator.generateWalletByPrivateKey(feePayerPrivateKey);
 
   const sender = new TokenSender(NETWORK_ID, wallet);
 
-  sender.feePayer = feePayer;
+  sender.feePayerWallet = feePayerWallet;
   sender.feeLock = "5";
 
-  const result = await sender.sendFungible(
+  const result = await sender.sendFungibleToken(
     toAddress,
     XRD_ADDRESS,
     amount,
@@ -63,7 +63,7 @@ test("NonFungible Transfer", async () => {
 
   sender.feeLock = "5";
 
-  const result = await sender.sendNonFungible(
+  const result = await sender.sendNonFungibleToken(
     toAddress,
     NFT_ADDRESS,
     localIds,
@@ -75,6 +75,8 @@ test("NonFungible Transfer", async () => {
 
 test("Custom Transfer", async () => {
   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
+  const feePayer =
+    await WalletGenerator.generateWalletByPrivateKey(feePayerPrivateKey);
   const sender = new TokenSender(NETWORK_ID, wallet);
   const message = "Send Custom Test";
 
@@ -84,60 +86,94 @@ test("Custom Transfer", async () => {
 
   const customOptions: CustomOption[] = [];
 
-  // customOptions.push({
-  //   fromWallet: wallet,
-  //   toAddress: toAddress,
-  //   tokenType: TokenType.NONFUNGIBLE,
-  //   tokenAddress: NFT_ADDRESS,
-  //   nonFungibleLocalIds: ["#14#", "#15#"],
-  // });
-
   customOptions.push({
     fromWallet: wallet,
     toAddress: toAddress,
-    tokenType: TokenType.FUNGIBLE,
-    tokenAddress: XRD_ADDRESS,
-    amount: amount,
+    transferInfos: [
+      {
+        tokenType: TokenType.NONFUNGIBLE,
+        tokenAddress:
+          "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc",
+        nonFungibleLocalIds: ["#12#", "#13#", "#14#"],
+      },
+      {
+        tokenType: TokenType.FUNGIBLE,
+        tokenAddress: XRD_ADDRESS,
+        amount: "10000",
+      },
+    ],
+  });
+
+  customOptions.push({
+    fromWallet: wallet,
+    toAddress: feePayer.address,
+    transferInfos: [
+      {
+        tokenType: TokenType.FUNGIBLE,
+        tokenAddress: XRD_ADDRESS,
+        amount: "9999",
+      },
+      {
+        tokenType: TokenType.NONFUNGIBLE,
+        tokenAddress:
+          "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc",
+        nonFungibleLocalIds: ["#16#", "#17#"],
+      },
+    ],
+  });
+
+  customOptions.push({
+    fromWallet: feePayer,
+    toAddress: toAddress,
+    transferInfos: [
+      {
+        tokenType: TokenType.FUNGIBLE,
+        tokenAddress: XRD_ADDRESS,
+        amount: "8888",
+      },
+      {
+        tokenType: TokenType.NONFUNGIBLE,
+        tokenAddress:
+          "resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s",
+        nonFungibleLocalIds: ["#16#", "#17#"],
+      },
+    ],
+  });
+
+  customOptions.push({
+    fromWallet: feePayer,
+    toAddress: wallet.address,
+    transferInfos: [
+      {
+        tokenType: TokenType.FUNGIBLE,
+        tokenAddress: XRD_ADDRESS,
+        amount: "7777",
+      },
+      {
+        tokenType: TokenType.NONFUNGIBLE,
+        tokenAddress:
+          "resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s",
+        nonFungibleLocalIds: ["#14#", "#12#"],
+      },
+    ],
   });
 
   customOptions.push({
     fromWallet: wallet,
     toAddress: toAddress,
-    tokenType: TokenType.FUNGIBLE,
-    tokenAddress: XRD_ADDRESS,
-    amount: amount,
+    transferInfos: [],
   });
-
-  // customOptions.push({
-  //   fromWallet: wallet,
-  //   toAddress: toAddress,
-  //   tokenType: TokenType.NONFUNGIBLE,
-  //   tokenAddress: NFT_ADDRESS,
-  //   nonFungibleLocalIds: ["#12#", "#13#"],
-  // });
 
   customOptions.push({
     fromWallet: wallet,
     toAddress: toAddress,
-    tokenType: TokenType.FUNGIBLE,
-    tokenAddress: XRD_ADDRESS,
-    amount: amount,
+    transferInfos: [],
   });
-
-  // customOptions.push({
-  //   fromWallet: wallet,
-  //   toAddress: toAddress,
-  //   tokenType: TokenType.NONFUNGIBLE,
-  //   tokenAddress: NFT_ADDRESS,
-  //   nonFungibleLocalIds: ["#16#", "#17#"],
-  // });
 
   customOptions.push({
     fromWallet: wallet,
     toAddress: toAddress,
-    tokenType: TokenType.FUNGIBLE,
-    tokenAddress: XRD_ADDRESS,
-    amount: amount,
+    transferInfos: [],
   });
 
   const result = await sender.sendCustom(customOptions, message);

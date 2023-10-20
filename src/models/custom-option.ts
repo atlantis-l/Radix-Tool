@@ -6,13 +6,17 @@ enum TokenType {
   NONFUNGIBLE,
 }
 
-interface CustomOption {
-  fromWallet: Wallet;
-  toAddress: string;
+interface TransferInfo {
   tokenType: TokenType;
   tokenAddress: string;
   amount?: Amount;
   nonFungibleLocalIds?: string[];
 }
 
-export { TokenType, CustomOption };
+interface CustomOption {
+  fromWallet: Wallet;
+  toAddress: string;
+  transferInfos: TransferInfo[];
+}
+
+export { TokenType, CustomOption, TransferInfo };
