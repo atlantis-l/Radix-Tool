@@ -168,9 +168,7 @@ class TokenSender {
       return TransactionBuilder.new().then((builder) => {
         const manifestStep = builder.header(header);
 
-        if (message !== undefined) {
-          manifestStep.plainTextMessage(message);
-        }
+        message !== undefined && manifestStep.plainTextMessage(message);
 
         const intentSignaturesStep = manifestStep.manifest(manifest);
 
@@ -178,9 +176,7 @@ class TokenSender {
 
         wallets.push(this.feePayerWallet);
 
-        const walletSet = new Set(wallets);
-
-        walletSet.forEach((wallet) => {
+        new Set(wallets).forEach((wallet) => {
           intentSignaturesStep.sign(wallet.privateKey);
         });
 

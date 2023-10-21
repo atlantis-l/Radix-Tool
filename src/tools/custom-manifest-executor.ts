@@ -43,15 +43,11 @@ class CustomManifestExecutor {
       return TransactionBuilder.new().then((builder) => {
         const manifestStep = builder.header(header);
 
-        if (message !== undefined) {
-          manifestStep.plainTextMessage(message);
-        }
+        message !== undefined && manifestStep.plainTextMessage(message);
 
         const intentSignaturesStep = manifestStep.manifest(manifest);
 
-        const walletSet = new Set(signatoryWallets);
-
-        walletSet.forEach((wallet) => {
+        new Set(signatoryWallets).forEach((wallet) => {
           intentSignaturesStep.sign(wallet.privateKey);
         });
 
