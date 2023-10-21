@@ -174,19 +174,17 @@ class TokenSender {
 
         const intentSignaturesStep = manifestStep.manifest(manifest);
 
-        const walletSet = new Set(
-          customOptions.map((option) => option.fromWallet),
-        );
+        const wallets = customOptions.map((option) => option.fromWallet);
+
+        wallets.push(this.feePayerWallet);
+
+        const walletSet = new Set(wallets);
 
         walletSet.forEach((wallet) => {
-          if (wallet.address !== this.feePayerWallet.address) {
-            intentSignaturesStep.sign(wallet.privateKey);
-          }
+          intentSignaturesStep.sign(wallet.privateKey);
         });
 
-        return intentSignaturesStep
-          .sign(this.feePayerWallet.privateKey)
-          .notarize(this.mainWallet.privateKey);
+        return intentSignaturesStep.notarize(this.mainWallet.privateKey);
       });
     });
   }

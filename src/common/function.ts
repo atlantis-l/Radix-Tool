@@ -12,9 +12,9 @@ import {
   PublicKeyEddsaEd25519KeyTypeEnum,
   TransactionPreviewOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
-import { DUPLICATE_RESULT, FAIL_RESULT, SUCCESS_RESULT } from "./common-result";
 import { NETWORK_API } from "./gateway-api";
 import Decimal from "decimal.js";
+import { Result, Status } from "../models";
 
 function selectNetwork(networkId: number) {
   return networkId === NetworkId.Mainnet
@@ -60,7 +60,7 @@ async function submitTransaction(
 async function processTransaction(
   networkId: number,
   f: (currentEpoch: number) => Promise<NotarizedTransaction>,
-) {
+): Promise<Result> {
   try {
     const NETWORK_API = selectNetwork(networkId);
 
@@ -70,10 +70,20 @@ async function processTransaction(
 
     const result = await submitTransaction(NETWORK_API, transaction);
 
-    return result.duplicate ? DUPLICATE_RESULT : SUCCESS_RESULT;
+    return result.duplicate
+      ? {
+          status: Status.DUPLICATE_TX,
+          transactionId: transaction.intentHash.id,
+        }
+      : {
+          status: Status.SUCCESS,
+          transactionId: transaction.intentHash.id,
+        };
   } catch (e) {
     console.error(e);
-    return FAIL_RESULT;
+    return {
+      status: Status.FAIL,
+    };
   }
 }
 

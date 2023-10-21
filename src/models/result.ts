@@ -6,6 +6,7 @@ enum Status {
 
 interface Result {
   status: Status;
+  transactionId?: string;
 }
 
 export { Result, Status };
