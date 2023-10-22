@@ -1,12 +1,12 @@
-import { NetworkId } from "@radixdlt/radix-engine-toolkit";
 import {
   CustomManifestExecutor,
   RadixNetworkChecker,
   RadixWalletGenerator,
   Status,
 } from "../src";
-import { readFileSync } from "fs";
 import path from "path";
+import { readFileSync } from "fs";
+import { NetworkId } from "@radixdlt/radix-engine-toolkit";
 import { TransactionStatus } from "@radixdlt/babylon-gateway-api-sdk";
 
 const NETWORK_ID = NetworkId.Stokenet;

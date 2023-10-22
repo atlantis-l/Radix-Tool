@@ -1,4 +1,3 @@
-import { NetworkId, RadixEngineToolkit } from "@radixdlt/radix-engine-toolkit";
 import {
   TokenSender,
   Status,
@@ -6,6 +5,7 @@ import {
   CustomOption,
   TokenType,
 } from "../src";
+import { NetworkId, RadixEngineToolkit } from "@radixdlt/radix-engine-toolkit";
 
 const NETWORK_ID = NetworkId.Stokenet;
 

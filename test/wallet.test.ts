@@ -1,5 +1,5 @@
-import { NetworkId } from "@radixdlt/radix-engine-toolkit";
 import { RadixWalletGenerator } from "../src";
+import { NetworkId } from "@radixdlt/radix-engine-toolkit";
 
 const NETWORK_ID = NetworkId.Stokenet;
 

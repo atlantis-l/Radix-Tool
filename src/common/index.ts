@@ -1,2 +1,2 @@
-export * from "./gateway-api";
 export * from "./function";
+export * from "./gateway-api";

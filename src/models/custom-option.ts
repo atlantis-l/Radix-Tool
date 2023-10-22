@@ -1,5 +1,5 @@
-import { Amount } from "@radixdlt/radix-engine-toolkit";
 import { Wallet } from "./wallet";
+import { Amount } from "@radixdlt/radix-engine-toolkit";
 
 enum TokenType {
   FUNGIBLE,

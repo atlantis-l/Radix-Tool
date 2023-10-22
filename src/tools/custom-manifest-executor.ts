@@ -4,8 +4,8 @@ import {
   TransactionManifest,
   generateRandomNonce,
 } from "@radixdlt/radix-engine-toolkit";
-import { processTransaction } from "../common";
 import { Wallet } from "../models";
+import { processTransaction } from "../common";
 
 class CustomManifestExecutor {
   networkId: number;

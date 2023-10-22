@@ -12,9 +12,9 @@ import {
   PublicKeyEddsaEd25519KeyTypeEnum,
   TransactionPreviewOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
-import { NETWORK_API } from "./gateway-api";
 import Decimal from "decimal.js";
 import { Result, Status } from "../models";
+import { NETWORK_API } from "./gateway-api";
 
 function selectNetwork(networkId: number) {
   return networkId === NetworkId.Mainnet

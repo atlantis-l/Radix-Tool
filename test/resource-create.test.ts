@@ -5,9 +5,9 @@ import {
   TransactionManifest,
   generateRandomNonce,
 } from "@radixdlt/radix-engine-toolkit";
-import { RadixWalletGenerator, processTransaction } from "../src";
-import { readFileSync } from "fs";
 import path from "path";
+import { readFileSync } from "fs";
+import { RadixWalletGenerator, processTransaction } from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
 
