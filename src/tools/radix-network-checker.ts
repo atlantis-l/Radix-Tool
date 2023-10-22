@@ -20,12 +20,16 @@ class RadixNetworkChecker {
     this.NETWORK_API = selectNetwork(networkId);
   }
 
-  async checkEntities(addresses: string[]) {
+  checkEntities(addresses: string[]) {
     const request: StateEntityDetailsOperationRequest = {
       stateEntityDetailsRequest: {
         addresses: addresses,
+        aggregation_level: "Vault",
         opt_ins: {
+          ancestor_identities: true,
           non_fungible_include_nfids: true,
+          package_royalty_vault_balance: true,
+          component_royalty_vault_balance: true,
         },
       },
     };
@@ -33,7 +37,7 @@ class RadixNetworkChecker {
     return this.NETWORK_API.state.innerClient.stateEntityDetails(request);
   }
 
-  async checkTransaction(transactionId: string) {
+  checkTransaction(transactionId: string) {
     const request: TransactionCommittedDetailsOperationRequest = {
       transactionCommittedDetailsRequest: {
         intent_hash: transactionId,

@@ -31,7 +31,7 @@ class TokenSender {
     this.feeLock = DEFAULT_FEE_LOCK;
   }
 
-  async sendFungibleToken(
+  sendFungibleToken(
     toAddress: string,
     tokenAddress: string,
     amount: Amount,
@@ -55,7 +55,7 @@ class TokenSender {
     );
   }
 
-  async sendNonFungibleToken(
+  sendNonFungibleToken(
     toAddress: string,
     tokenAddress: string,
     nonFungibleLocalIds: string[],
@@ -79,7 +79,7 @@ class TokenSender {
     );
   }
 
-  async sendTokens(
+  sendTokens(
     toAddress: string,
     transferInfos: TransferInfo[],
     message: string | undefined,
@@ -96,18 +96,8 @@ class TokenSender {
     );
   }
 
-  async sendCustom(customOptions: CustomOption[], message: string | undefined) {
+  sendCustom(customOptions: CustomOption[], message: string | undefined) {
     return processTransaction(this.networkId, async (currentEpoch) => {
-      const header: TransactionHeader = {
-        networkId: this.networkId,
-        startEpochInclusive: currentEpoch,
-        endEpochExclusive: currentEpoch + 2,
-        nonce: generateRandomNonce(),
-        notaryPublicKey: this.mainWallet.publicKey,
-        notaryIsSignatory: true,
-        tipPercentage: 0,
-      };
-
       const manifestBuilder = new ManifestBuilder().callMethod(
         this.feePayerWallet.address,
         "lock_fee",
@@ -163,25 +153,33 @@ class TokenSender {
         ]);
       });
 
-      const manifest = manifestBuilder.build();
+      const header: TransactionHeader = {
+        networkId: this.networkId,
+        startEpochInclusive: currentEpoch,
+        endEpochExclusive: currentEpoch + 2,
+        nonce: generateRandomNonce(),
+        notaryPublicKey: this.mainWallet.publicKey,
+        notaryIsSignatory: true,
+        tipPercentage: 0,
+      };
 
-      return TransactionBuilder.new().then((builder) => {
-        const manifestStep = builder.header(header);
+      const manifestStep = (await TransactionBuilder.new()).header(header);
 
-        message !== undefined && manifestStep.plainTextMessage(message);
+      message !== undefined && manifestStep.plainTextMessage(message);
 
-        const intentSignaturesStep = manifestStep.manifest(manifest);
+      const intentSignaturesStep = manifestStep.manifest(
+        manifestBuilder.build(),
+      );
 
-        const wallets = customOptions.map((option) => option.fromWallet);
+      const wallets = customOptions.map((option) => option.fromWallet);
 
-        wallets.push(this.feePayerWallet);
+      wallets.push(this.feePayerWallet);
 
-        new Set(wallets).forEach((wallet) => {
-          intentSignaturesStep.sign(wallet.privateKey);
-        });
-
-        return intentSignaturesStep.notarize(this.mainWallet.privateKey);
+      new Set(wallets).forEach((wallet) => {
+        intentSignaturesStep.sign(wallet.privateKey);
       });
+
+      return intentSignaturesStep.notarize(this.mainWallet.privateKey);
     });
   }
 }

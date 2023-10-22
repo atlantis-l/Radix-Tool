@@ -46,7 +46,7 @@ async function generateTransaction(transaction: NotarizedTransaction) {
   );
 }
 
-async function submitTransaction(
+function submitTransaction(
   networkApi: GatewayApiClient,
   transaction: CompiledNotarizedTransaction,
 ) {

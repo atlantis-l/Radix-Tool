@@ -13,7 +13,7 @@ class RadixWalletGenerator {
     this.networkId = networkId;
   }
 
-  async generateNewWallet() {
+  generateNewWallet() {
     const privateKey = ed25519.utils.randomPrivateKey();
 
     return this.generateWalletByPrivateKey(
