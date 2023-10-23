@@ -1,5 +1,4 @@
 import blake from "blakejs";
-import { Buffer } from "buffer";
 import { bufferToUnit8Array } from "./blake2b";
 
 function hash(input: string): Buffer {

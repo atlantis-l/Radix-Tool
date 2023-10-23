@@ -1,5 +1,5 @@
-import { Result, err, ok } from "neverthrow";
 import blake from "blakejs";
+import { Result, err, ok } from "neverthrow";
 
 const toArrayBuffer = (buffer: Buffer): ArrayBuffer => {
   const arrayBuffer = new ArrayBuffer(buffer.length);
