@@ -14,8 +14,12 @@
   "engines": {
     "node": ">=20.8.0"
   },
-  "keywords": [],
+  "keywords": ["radix", "dlt", "crypto", "scrypto", "toolkit"],
   "author": "atlantis-l",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atlantis-l/Radix-Tool"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.5",
