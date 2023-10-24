@@ -9,11 +9,11 @@ import { processTransaction } from "../common";
 
 class CustomManifestExecutor {
   networkId: number;
-  feePayerWallet: Wallet;
+  executorWallet: Wallet;
 
-  constructor(networkId: number, feePayerWallet: Wallet) {
+  constructor(networkId: number, executorWallet: Wallet) {
     this.networkId = networkId;
-    this.feePayerWallet = feePayerWallet;
+    this.executorWallet = executorWallet;
   }
 
   execute(
@@ -27,7 +27,7 @@ class CustomManifestExecutor {
         startEpochInclusive: currentEpoch,
         endEpochExclusive: currentEpoch + 2,
         nonce: generateRandomNonce(),
-        notaryPublicKey: this.feePayerWallet.publicKey,
+        notaryPublicKey: this.executorWallet.publicKey,
         notaryIsSignatory: true,
         tipPercentage: 0,
       };
@@ -51,7 +51,7 @@ class CustomManifestExecutor {
           intentSignaturesStep.sign(wallet.privateKey);
         });
 
-        return intentSignaturesStep.notarize(this.feePayerWallet.privateKey);
+        return intentSignaturesStep.notarize(this.executorWallet.privateKey);
       });
     });
   }
