@@ -1,5 +1,5 @@
 {
-  "name": "radix-tool",
+  "name": "@atlantis-l/radix-tool",
   "version": "0.7.1",
   "description": "A tool to interact with the radix network",
   "main": "dist/radix-tool.umd.cjs",
@@ -14,7 +14,13 @@
   "engines": {
     "node": ">=20.8.0"
   },
-  "keywords": ["radix", "dlt", "crypto", "scrypto", "toolkit"],
+  "keywords": [
+    "radix",
+    "dlt",
+    "crypto",
+    "scrypto",
+    "toolkit"
+  ],
   "author": "atlantis-l",
   "repository": {
     "type": "git",
@@ -35,7 +41,6 @@
   "dependencies": {
     "@noble/curves": "^1.2.0",
     "@radixdlt/babylon-gateway-api-sdk": "^1.1.0",
-    "@radixdlt/radix-engine-toolkit": "^1.0.3",
-    "neverthrow": "^6.0.0"
+    "@radixdlt/radix-engine-toolkit": "^1.0.3"
   }
 }
