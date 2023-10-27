@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { PrivateKey, PublicKey } from "@radixdlt/radix-engine-toolkit";
 
 class Wallet {

@@ -1,4 +1,5 @@
 import blake from "blakejs";
+import { Buffer } from "buffer";
 
 const toArrayBuffer = (buffer: Buffer): ArrayBuffer => {
   const arrayBuffer = new ArrayBuffer(buffer.length);
