@@ -1,0 +1,10 @@
+src
+test
+.gitignore
+node_modules
+tsconfig.json
+jest.config.ts
+vite.config.ts
+.prettierignore
+package-lock.json
+tsconfig.node.json
