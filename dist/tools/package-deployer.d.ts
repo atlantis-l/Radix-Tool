@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { Buffer } from "buffer";
 import { Wallet } from "../models";
 declare class PackageDeployer {
     networkId: number;
