@@ -1,5 +1,4 @@
 import {
-  GatewayApiClient,
   StateEntityDetailsOperationRequest,
   TransactionCommittedDetailsOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
@@ -7,18 +6,10 @@ import { selectNetwork } from "../common";
 import { NameAndSymbol, ResourcesOfAccount } from "../models";
 
 class RadixNetworkChecker {
-  //@ts-ignore
   networkId: number;
-  //@ts-ignore
-  private NETWORK_API: GatewayApiClient;
 
   constructor(networkId: number) {
-    this.setNetworkId(networkId);
-  }
-
-  setNetworkId(networkId: number) {
     this.networkId = networkId;
-    this.NETWORK_API = selectNetwork(networkId);
   }
 
   checkEntities(addresses: string[]) {
@@ -41,7 +32,9 @@ class RadixNetworkChecker {
       },
     };
 
-    return this.NETWORK_API.state.innerClient.stateEntityDetails(request);
+    return selectNetwork(this.networkId).state.innerClient.stateEntityDetails(
+      request,
+    );
   }
 
   async checkResourcesOfAccounts(
@@ -122,9 +115,9 @@ class RadixNetworkChecker {
       },
     };
 
-    return this.NETWORK_API.transaction.innerClient.transactionCommittedDetails(
-      request,
-    );
+    return selectNetwork(
+      this.networkId,
+    ).transaction.innerClient.transactionCommittedDetails(request);
   }
 }
 
