@@ -1,5 +1,4 @@
-import { RadixNetworkChecker } from "../src";
-import { NetworkId } from "@radixdlt/radix-engine-toolkit";
+import { RadixNetworkChecker, NetworkId } from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
 

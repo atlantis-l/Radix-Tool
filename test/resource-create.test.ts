@@ -1,13 +1,12 @@
 import {
-  NetworkId,
-  TransactionBuilder,
   TransactionHeader,
+  TransactionBuilder,
   TransactionManifest,
   generateRandomNonce,
 } from "@radixdlt/radix-engine-toolkit";
 import path from "path";
 import { readFileSync } from "fs";
-import { RadixWalletGenerator, processTransaction } from "../src";
+import { RadixWalletGenerator, processTransaction, NetworkId } from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
 

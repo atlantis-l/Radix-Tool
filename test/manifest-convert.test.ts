@@ -1,13 +1,12 @@
 import {
-  Expression,
-  ManifestBuilder,
-  NetworkId,
-  RadixEngineToolkit,
   decimal,
-  enumeration,
+  Expression,
   expression,
+  enumeration,
+  ManifestBuilder,
+  RadixEngineToolkit,
 } from "@radixdlt/radix-engine-toolkit";
-import { convertManifestTo } from "../src";
+import { convertManifestTo, NetworkId } from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
 

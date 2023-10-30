@@ -1,14 +1,18 @@
 import {
-  ManifestBuilder,
   address,
   decimal,
-  enumeration,
-  NetworkId,
-  RadixEngineToolkit,
   expression,
   Expression,
+  enumeration,
+  ManifestBuilder,
+  RadixEngineToolkit,
 } from "@radixdlt/radix-engine-toolkit";
-import { calculateFee, getCurrentEpoch, RadixWalletGenerator } from "../src";
+import {
+  NetworkId,
+  calculateFee,
+  getCurrentEpoch,
+  RadixWalletGenerator,
+} from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
 

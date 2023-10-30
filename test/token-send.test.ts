@@ -1,11 +1,12 @@
 import {
-  TokenSender,
   Status,
-  RadixWalletGenerator,
-  CustomOption,
+  NetworkId,
   TokenType,
+  TokenSender,
+  CustomOption,
+  RadixWalletGenerator,
 } from "../src";
-import { NetworkId, RadixEngineToolkit } from "@radixdlt/radix-engine-toolkit";
+import { RadixEngineToolkit } from "@radixdlt/radix-engine-toolkit";
 
 const NETWORK_ID = NetworkId.Stokenet;
 
