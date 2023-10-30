@@ -3,4 +3,5 @@ declare const NETWORK_API: {
     STOKENET_API: GatewayApiClient;
     MAINNET_API: GatewayApiClient;
 };
-export { NETWORK_API };
+declare function setNetwork(networkId: number, isDefault: boolean, customBasePath?: string): void;
+export { NETWORK_API, setNetwork };
