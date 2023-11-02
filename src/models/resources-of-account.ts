@@ -1,7 +1,15 @@
-interface ResourcesOfAccount {
-  address: string;
-  fungible: { resourceAddress: string; amount: string }[];
-  nonFungible: { resourceAddress: string; ids: string[] }[];
+interface ResourceInfo {
+  resourceAddress: string;
+  symbol: string;
+  name: string;
+  amount?: string;
+  ids?: string[];
 }
 
-export { ResourcesOfAccount };
+interface ResourcesOfAccount {
+  address: string;
+  fungible: ResourceInfo[];
+  nonFungible: ResourceInfo[];
+}
+
+export { ResourcesOfAccount, ResourceInfo };

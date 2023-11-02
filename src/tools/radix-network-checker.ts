@@ -3,7 +3,7 @@ import {
   TransactionCommittedDetailsOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
 import { selectNetwork } from "../common";
-import { NameAndSymbol, ResourcesOfAccount } from "../models";
+import { ResourceInfo, ResourcesOfAccount } from "../models";
 
 class RadixNetworkChecker {
   networkId: number;
@@ -37,75 +37,54 @@ class RadixNetworkChecker {
     );
   }
 
-  async checkResourcesOfAccounts(
-    addresses: string[],
-  ): Promise<ResourcesOfAccount[]> {
+  async checkResourcesOfAccounts(addresses: string[]) {
     const deduplicatedAddresses: string[] = [];
 
     new Set(addresses).forEach((address) =>
       deduplicatedAddresses.push(address),
     );
 
-    const response = await this.checkEntities(deduplicatedAddresses);
+    const response = await selectNetwork(
+      this.networkId,
+    ).state.getEntityDetailsVaultAggregated(deduplicatedAddresses, {
+      explicitMetadata: ["name", "symbol"],
+    });
 
-    //@ts-ignore
-    return response.items.map((item) => {
+    return response.map((item) => {
       return {
         address: item.address,
-        fungible: item.fungible_resources?.items.map((fungibleItem) => {
-          //@ts-ignore
-          const amount = fungibleItem.vaults.items[0].amount;
+        fungible: item.fungible_resources.items.map((resource) => {
+          const amount = resource.vaults.items[0].amount;
           return {
-            resourceAddress: fungibleItem.resource_address,
-            amount: amount === undefined ? "0" : amount,
-          };
+            resourceAddress: resource.resource_address,
+            name: resource.explicit_metadata?.items.find(
+              (item) => item.key === "name",
+              //@ts-ignore
+            )?.value.typed.value,
+            symbol: resource.explicit_metadata?.items.find(
+              (item) => item.key === "symbol",
+              //@ts-ignore
+            )?.value.typed.value,
+            amount: amount ? amount : "0",
+          } as ResourceInfo;
         }),
-        nonFungible: item.non_fungible_resources?.items.map(
-          (nonFungibleItem) => {
-            //@ts-ignore
-            const items = nonFungibleItem.vaults.items[0].items;
-            return {
-              resourceAddress: nonFungibleItem.resource_address,
-              ids: items === undefined ? [] : items,
-            };
-          },
-        ),
-      };
+        nonFungible: item.non_fungible_resources.items.map((resource) => {
+          const items = resource.vaults.items[0].items;
+          return {
+            resourceAddress: resource.resource_address,
+            name: resource.explicit_metadata?.items.find(
+              (item) => item.key === "name",
+              //@ts-ignore
+            )?.value.typed.value,
+            symbol: resource.explicit_metadata?.items.find(
+              (item) => item.key === "symbol",
+              //@ts-ignore
+            )?.value.typed.value,
+            ids: items ? items : ([] as string[]),
+          } as ResourceInfo;
+        }),
+      } as ResourcesOfAccount;
     });
-  }
-
-  async checkSymbolsOfResources(resourceAddresses: string[]) {
-    const deduplicatedAddresses: string[] = [];
-
-    new Set(resourceAddresses).forEach((address) =>
-      deduplicatedAddresses.push(address),
-    );
-
-    const response = await this.checkEntities(deduplicatedAddresses);
-
-    const resourceSymbolMap = new Map<string, NameAndSymbol>();
-
-    response.items.forEach((item) => {
-      //@ts-ignore
-      const symbol = item.metadata.items.find(
-        (metadataItem) => metadataItem.key === "symbol",
-        //@ts-ignore
-      );
-
-      //@ts-ignore
-      const name = item.metadata.items.find(
-        (metadataItem) => metadataItem.key === "name",
-        //@ts-ignore
-      ).value.typed.value;
-
-      resourceSymbolMap.set(item.address, {
-        name: name,
-        //@ts-ignore
-        symbol: symbol === undefined ? undefined : symbol.value.typed.value,
-      });
-    });
-
-    return resourceSymbolMap;
   }
 
   checkTransaction(transactionId: string) {
