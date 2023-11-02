@@ -1,6 +1,6 @@
 {
   "name": "@atlantis-l/radix-tool",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "A tool to interact with the radix network",
   "main": "dist/radix-tool.umd.cjs",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
   "author": "atlantis-l",
   "repository": {
     "type": "git",
-    "url": "https://github.com/atlantis-l/Radix-Tool"
+    "url": "git+https://github.com/atlantis-l/Radix-Tool.git"
   },
   "license": "MIT",
   "devDependencies": {
