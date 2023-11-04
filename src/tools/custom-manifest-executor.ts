@@ -1,11 +1,12 @@
 import {
+  PublicKey,
   TransactionHeader,
   TransactionBuilder,
   TransactionManifest,
   generateRandomNonce,
 } from "@radixdlt/radix-engine-toolkit";
 import { Wallet } from "../models";
-import { processTransaction } from "../common";
+import { processTransaction, previewTransaction } from "../common";
 
 class CustomManifestExecutor {
   networkId: number;
@@ -60,6 +61,30 @@ class CustomManifestExecutor {
         return intentSignaturesStep.notarize(this.executorWallet.privateKey);
       });
     });
+  }
+
+  executePreview(manifestString: string, signatoryWallets: Wallet[]) {
+    const manifest: TransactionManifest = {
+      instructions: {
+        kind: "String",
+        value: manifestString,
+      },
+      blobs: [],
+    };
+
+    const map = new Map<string, PublicKey>();
+
+    signatoryWallets.forEach((wallet) => {
+      map.set(wallet.address, wallet.publicKey);
+    });
+
+    return previewTransaction(
+      this.networkId,
+      manifest,
+      this.executorWallet.publicKey,
+      [...map.values()],
+      [],
+    );
   }
 }
 

@@ -8,7 +8,8 @@ import {
 } from "@radixdlt/radix-engine-toolkit";
 import { Buffer } from "buffer";
 import { Wallet } from "../models";
-import { hash, processTransaction } from "../common";
+import { hash } from "../common/hash";
+import { previewTransaction, processTransaction } from "../common";
 
 const DEFAULT_FEE_LOCK = "200";
 
@@ -147,6 +148,107 @@ class PackageDeployer {
         .sign(this.feePayerWallet.privateKey)
         .notarize(this.deployerWallet.privateKey);
     });
+  }
+
+  async deployWithOwnerPreview(
+    wasm: Buffer,
+    rpd: Buffer,
+    nonFungibleGlobalId: string,
+  ) {
+    const wasmHex = wasm.toString("hex");
+
+    const wasmHash = hash(wasmHex).toString("hex");
+
+    const decodedRpd = await RadixEngineToolkit.ManifestSbor.decodeToString(
+      rpd,
+      this.networkId,
+      ManifestSborStringRepresentation.ManifestString,
+    );
+
+    const manifestString = `
+      CALL_METHOD
+      Address("${this.feePayerWallet.address}")
+      "lock_fee"
+      Decimal("${this.feeLock}");
+
+      PUBLISH_PACKAGE_ADVANCED
+      Enum<OwnerRole::Fixed>(
+          Enum<AccessRule::Protected>(
+              Enum<AccessRuleNode::ProofRule>(
+                  Enum<ProofRule::Require>(
+                      Enum<ResourceOrNonFungible::NonFungible>(
+                          NonFungibleGlobalId("${nonFungibleGlobalId}")
+                      )
+                  )
+              )
+          )
+      )
+      ${decodedRpd}
+      Blob("${wasmHash}")
+      Map<String, Tuple>()
+      None;
+      `;
+
+    const manifest: TransactionManifest = {
+      instructions: {
+        kind: "String",
+        value: manifestString,
+      },
+      blobs: [],
+    };
+
+    return previewTransaction(
+      this.networkId,
+      manifest,
+      this.deployerWallet.publicKey,
+      [this.feePayerWallet.publicKey],
+      [wasmHex],
+    );
+  }
+
+  async deployPreview(wasm: Buffer, rpd: Buffer) {
+    const wasmHex = wasm.toString("hex");
+
+    const wasmHash = hash(wasmHex).toString("hex");
+
+    const decodedRpd = await RadixEngineToolkit.ManifestSbor.decodeToString(
+      rpd,
+      this.networkId,
+      ManifestSborStringRepresentation.ManifestString,
+    );
+
+    const manifestString = `
+      CALL_METHOD
+      Address("${this.feePayerWallet.address}")
+      "lock_fee"
+      Decimal("${this.feeLock}");
+
+      PUBLISH_PACKAGE
+      ${decodedRpd}
+      Blob("${wasmHash}")
+      Map<String, Tuple>();
+
+      CALL_METHOD
+      Address("${this.deployerWallet.address}")
+      "deposit_batch"
+      Expression("ENTIRE_WORKTOP");
+      `;
+
+    const manifest: TransactionManifest = {
+      instructions: {
+        kind: "String",
+        value: manifestString,
+      },
+      blobs: [],
+    };
+
+    return previewTransaction(
+      this.networkId,
+      manifest,
+      this.deployerWallet.publicKey,
+      [this.feePayerWallet.publicKey],
+      [wasmHex],
+    );
   }
 }
 

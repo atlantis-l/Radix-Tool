@@ -13,8 +13,8 @@ import {
   TransactionPreviewOperationRequest,
 } from "@radixdlt/babylon-gateway-api-sdk";
 import Decimal from "decimal.js";
-import { Result, Status } from "../models";
 import { NETWORK_API } from "./gateway-api";
+import { PreviewResult, Result, Status } from "../models";
 
 function selectNetwork(networkId: number) {
   return networkId === NetworkId.Mainnet
@@ -87,40 +87,44 @@ async function processTransaction(
   }
 }
 
-async function calculateFee(
+async function previewTransaction(
   networkId: number,
-  currentEpoch: number,
   manifest: TransactionManifest,
-  publicKey: PublicKey,
+  notaryPublicKey: PublicKey,
+  signerPublicKeys: PublicKey[],
+  blobsHex: string[],
 ) {
   const NETWORK_API = selectNetwork(networkId);
 
-  await convertManifestTo("String", manifest, networkId);
+  const currentEpoch = await getCurrentEpoch(networkId);
+
+  manifest.instructions.kind === "Parsed" &&
+    (await convertManifestTo("String", manifest, networkId));
 
   const request: TransactionPreviewOperationRequest = {
     transactionPreviewRequest: {
-      //@ts-ignore
-      manifest: manifest.instructions.value,
+      tip_percentage: 0,
+      blobs_hex: blobsHex,
+      notary_is_signatory: true,
+      nonce: generateRandomNonce(),
       start_epoch_inclusive: currentEpoch,
       end_epoch_exclusive: currentEpoch + 2,
-      notary_public_key: {
-        key_type: PublicKeyEddsaEd25519KeyTypeEnum.EddsaEd25519,
-        key_hex: publicKey.hexString(),
-      },
-      notary_is_signatory: true,
-      tip_percentage: 0,
-      nonce: generateRandomNonce(),
-      signer_public_keys: [
-        {
-          key_type: PublicKeyEddsaEd25519KeyTypeEnum.EddsaEd25519,
-          key_hex: publicKey.hexString(),
-        },
-      ],
+      manifest: manifest.instructions.value as string,
       flags: {
         use_free_credit: true,
-        assume_all_signature_proofs: true,
         skip_epoch_check: true,
+        assume_all_signature_proofs: true,
       },
+      notary_public_key: {
+        key_hex: notaryPublicKey.hexString(),
+        key_type: PublicKeyEddsaEd25519KeyTypeEnum.EddsaEd25519,
+      },
+      signer_public_keys: signerPublicKeys.map((publicKey) => {
+        return {
+          key_hex: publicKey.hexString(),
+          key_type: PublicKeyEddsaEd25519KeyTypeEnum.EddsaEd25519,
+        };
+      }),
     },
   };
 
@@ -141,7 +145,14 @@ async function calculateFee(
     .plus(feeSummary.xrd_total_tipping_cost)
     .plus(feeSummary.xrd_total_royalty_cost)
     .plus(feeSummary.xrd_total_finalization_cost);
-  return fee.toString();
+
+  return {
+    fee: fee.toString(),
+    //@ts-ignore
+    status: preview.receipt.status,
+    //@ts-ignore
+    errorMessage: preview.receipt.error_message,
+  } as PreviewResult;
 }
 
 async function convertManifestTo(
@@ -157,10 +168,10 @@ async function convertManifestTo(
 }
 
 export {
-  generateTransaction,
   selectNetwork,
-  processTransaction,
-  calculateFee,
-  convertManifestTo,
   getCurrentEpoch,
+  convertManifestTo,
+  previewTransaction,
+  processTransaction,
+  generateTransaction,
 };
