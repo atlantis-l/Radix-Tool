@@ -1,10 +1,10 @@
 import { PublicKey, TransactionManifest, NotarizedTransaction, CompiledNotarizedTransaction } from "@radixdlt/radix-engine-toolkit";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
-import { Result } from "../models";
+import { PreviewResult, Result } from "../models";
 declare function selectNetwork(networkId: number): GatewayApiClient;
 declare function getCurrentEpoch(networkId: number): Promise<number>;
 declare function generateTransaction(transaction: NotarizedTransaction): Promise<CompiledNotarizedTransaction>;
 declare function processTransaction(networkId: number, f: (currentEpoch: number) => Promise<NotarizedTransaction>): Promise<Result>;
-declare function calculateFee(networkId: number, currentEpoch: number, manifest: TransactionManifest, publicKey: PublicKey): Promise<string>;
+declare function previewTransaction(networkId: number, manifest: TransactionManifest, notaryPublicKey: PublicKey, signerPublicKeys: PublicKey[], blobsHex: string[]): Promise<PreviewResult>;
 declare function convertManifestTo(kind: "String" | "Parsed", manifest: TransactionManifest, networkId: number): Promise<void>;
-export { generateTransaction, selectNetwork, processTransaction, calculateFee, convertManifestTo, getCurrentEpoch, };
+export { selectNetwork, getCurrentEpoch, convertManifestTo, previewTransaction, processTransaction, generateTransaction, };

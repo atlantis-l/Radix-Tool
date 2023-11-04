@@ -10,5 +10,6 @@ declare class TokenSender {
     sendNonFungibleToken(toAddress: string, tokenAddress: string, nonFungibleLocalIds: string[], message: string | undefined): Promise<import("../models/result").Result>;
     sendTokens(toAddress: string, transferInfos: TransferInfo[], message: string | undefined): Promise<import("../models/result").Result>;
     sendCustom(customOptions: CustomOption[], message: string | undefined): Promise<import("../models/result").Result>;
+    sendCustomPreview(customOptions: CustomOption[]): Promise<import("../models").PreviewResult>;
 }
 export { TokenSender };
