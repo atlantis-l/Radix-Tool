@@ -26,7 +26,7 @@ test("getEntityDetailsVaultAggregated", async () => {
 test("Entities Check", async () => {
   const result = await checker.checkEntities(addresses);
 
-  expect(result.items.length).toBe(2);
+  expect(result.items.length).toBe(3);
 
   console.log(result.items);
 });

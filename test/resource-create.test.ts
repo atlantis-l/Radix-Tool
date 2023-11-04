@@ -1,12 +1,11 @@
 import {
-  TransactionHeader,
-  TransactionBuilder,
-  TransactionManifest,
-  generateRandomNonce,
-} from "@radixdlt/radix-engine-toolkit";
+  NetworkId,
+  RadixNetworkChecker,
+  RadixWalletGenerator,
+  CustomManifestExecutor,
+} from "../src";
 import path from "path";
 import { readFileSync } from "fs";
-import { RadixWalletGenerator, processTransaction, NetworkId } from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
 
@@ -15,42 +14,31 @@ const WalletGenerator = new RadixWalletGenerator(NETWORK_ID);
 const privateKey =
   "c2de054684b1f81199803355e6080ef416bbfed34c759e1bb2aade89d572dfdd";
 
+const checker = new RadixNetworkChecker(NETWORK_ID);
+
 test("Create Fungible", async () => {
   const message = "Create Fungible";
 
   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
 
-  await processTransaction(NETWORK_ID, async (currentEpoch) => {
-    const header: TransactionHeader = {
-      networkId: NETWORK_ID,
-      startEpochInclusive: currentEpoch,
-      endEpochExclusive: currentEpoch + 2,
-      nonce: generateRandomNonce(),
-      notaryPublicKey: wallet.publicKey,
-      notaryIsSignatory: true,
-      tipPercentage: 0,
-    };
+  const executor = new CustomManifestExecutor(NETWORK_ID, wallet);
 
-    const manifestString = readFileSync(
-      path.join(__dirname, "radix-transaction-manifest/create-fungible.rtm"),
-    ).toString("utf8");
+  const manifestString = readFileSync(
+    path.join(__dirname, "radix-transaction-manifest/fungible-create.rtm"),
+  ).toString("utf8");
 
-    const manifest: TransactionManifest = {
-      instructions: {
-        kind: "String",
-        value: manifestString,
-      },
-      blobs: [],
-    };
+  const previewResult = await executor.executePreview(manifestString, []);
 
-    return TransactionBuilder.new().then((builder) =>
-      builder
-        .header(header)
-        .plainTextMessage(message)
-        .manifest(manifest)
-        .notarize(wallet.privateKey),
-    );
-  });
+  console.log(`Preview Result: `, {});
+  console.log(previewResult);
+
+  const result = await executor.execute(manifestString, [], message);
+
+  await new Promise((r) => setTimeout(r, 5000));
+
+  const tx = await checker.checkTransaction(result.transactionId as string);
+
+  console.log(`Fee Paid: ${tx.transaction.fee_paid}`);
 });
 
 test("Create Non Fungible", async () => {
@@ -58,38 +46,22 @@ test("Create Non Fungible", async () => {
 
   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
 
-  await processTransaction(NETWORK_ID, async (currentEpoch) => {
-    const header: TransactionHeader = {
-      networkId: NETWORK_ID,
-      startEpochInclusive: currentEpoch,
-      endEpochExclusive: currentEpoch + 2,
-      nonce: generateRandomNonce(),
-      notaryPublicKey: wallet.publicKey,
-      notaryIsSignatory: true,
-      tipPercentage: 0,
-    };
+  const executor = new CustomManifestExecutor(NETWORK_ID, wallet);
 
-    const manifestString = readFileSync(
-      path.join(
-        __dirname,
-        "radix-transaction-manifest/create-non-fungible.rtm",
-      ),
-    ).toString("utf8");
+  const manifestString = readFileSync(
+    path.join(__dirname, "radix-transaction-manifest/non-fungible-create.rtm"),
+  ).toString("utf8");
 
-    const manifest: TransactionManifest = {
-      instructions: {
-        kind: "String",
-        value: manifestString,
-      },
-      blobs: [],
-    };
+  const previewResult = await executor.executePreview(manifestString, []);
 
-    return TransactionBuilder.new().then((builder) =>
-      builder
-        .header(header)
-        .plainTextMessage(message)
-        .manifest(manifest)
-        .notarize(wallet.privateKey),
-    );
-  });
+  console.log(`Preview Result: `, {});
+  console.log(previewResult);
+
+  const result = await executor.execute(manifestString, [], message);
+
+  await new Promise((r) => setTimeout(r, 5000));
+
+  const tx = await checker.checkTransaction(result.transactionId as string);
+
+  console.log(`Fee Paid: ${tx.transaction.fee_paid}`);
 });

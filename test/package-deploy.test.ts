@@ -60,10 +60,38 @@ test("Package Deploy", async () => {
     TransactionStatus.CommittedSuccess,
   );
 
+  console.log(`DeployWithOwner Fee Paid: ${tx1.transaction.fee_paid}`);
+
   //@ts-ignore
   const tx2 = await checker.checkTransaction(result2.transactionId);
 
   expect(tx2.transaction.transaction_status).toBe(
     TransactionStatus.CommittedSuccess,
   );
+
+  console.log(`Deploy Fee Paid: ${tx2.transaction.fee_paid}`);
 }, 30000);
+
+test("Deploy Preview", async () => {
+  const generator = new RadixWalletGenerator(NETWORK_ID);
+
+  const wallet = await generator.generateWalletByPrivateKey(privateKey);
+
+  const deployer = new PackageDeployer(NETWORK_ID, wallet);
+
+  deployer.feeLock = "200";
+
+  const wasm = readFileSync(path.join(__dirname, "package-deploy/hello.wasm"));
+
+  const rpd = readFileSync(path.join(__dirname, "package-deploy/hello.rpd"));
+
+  const result1 = await deployer.deployPreview(wasm, rpd);
+
+  const globalId =
+    "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc:#16#";
+
+  const result2 = await deployer.deployWithOwnerPreview(wasm, rpd, globalId);
+
+  console.log(`DeployWithOwnerPreview: ${JSON.stringify(result2)}`);
+  console.log(`DeployPreview: ${JSON.stringify(result1)}`);
+});

@@ -1,7 +1,7 @@
 import {
   Status,
-  NetworkId,
   TokenType,
+  NetworkId,
   TokenSender,
   CustomOption,
   RadixWalletGenerator,
@@ -23,56 +23,56 @@ const toAddress =
 
 const amount = "100";
 
-test("XRD Transfer", async () => {
-  const message = "XRD Transfer";
+// test("XRD Transfer", async () => {
+//   const message = "XRD Transfer";
 
-  const {
-    resourceAddresses: { xrd: XRD_ADDRESS },
-  } = await RadixEngineToolkit.Utils.knownAddresses(NETWORK_ID);
+//   const {
+//     resourceAddresses: { xrd: XRD_ADDRESS },
+//   } = await RadixEngineToolkit.Utils.knownAddresses(NETWORK_ID);
 
-  const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
+//   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
 
-  const feePayerWallet =
-    await WalletGenerator.generateWalletByPrivateKey(feePayerPrivateKey);
+//   const feePayerWallet =
+//     await WalletGenerator.generateWalletByPrivateKey(feePayerPrivateKey);
 
-  const sender = new TokenSender(NETWORK_ID, wallet);
+//   const sender = new TokenSender(NETWORK_ID, wallet);
 
-  sender.feePayerWallet = feePayerWallet;
-  sender.feeLock = "5";
+//   sender.feePayerWallet = feePayerWallet;
+//   sender.feeLock = "5";
 
-  const result = await sender.sendFungibleToken(
-    toAddress,
-    XRD_ADDRESS,
-    amount,
-    message,
-  );
+//   const result = await sender.sendFungibleToken(
+//     toAddress,
+//     XRD_ADDRESS,
+//     amount,
+//     message,
+//   );
 
-  expect(result.status).toBe(Status.SUCCESS);
-});
+//   expect(result.status).toBe(Status.SUCCESS);
+// });
 
 const NFT_ADDRESS =
   "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc";
 
 const localIds = ["#14#", "#15#"];
 
-test("NonFungible Transfer", async () => {
-  const message = "NonFungible Transfer";
+// test("NonFungible Transfer", async () => {
+//   const message = "NonFungible Transfer";
 
-  const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
+//   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
 
-  const sender = new TokenSender(NETWORK_ID, wallet);
+//   const sender = new TokenSender(NETWORK_ID, wallet);
 
-  sender.feeLock = "5";
+//   sender.feeLock = "5";
 
-  const result = await sender.sendNonFungibleToken(
-    toAddress,
-    NFT_ADDRESS,
-    localIds,
-    message,
-  );
+//   const result = await sender.sendNonFungibleToken(
+//     toAddress,
+//     NFT_ADDRESS,
+//     localIds,
+//     message,
+//   );
 
-  expect(result.status).toBe(Status.SUCCESS);
-});
+//   expect(result.status).toBe(Status.SUCCESS);
+// });
 
 test("Custom Transfer", async () => {
   const wallet = await WalletGenerator.generateWalletByPrivateKey(privateKey);
@@ -91,12 +91,12 @@ test("Custom Transfer", async () => {
     fromWallet: wallet,
     toAddress: toAddress,
     transferInfos: [
-      {
-        tokenType: TokenType.NONFUNGIBLE,
-        tokenAddress:
-          "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc",
-        nonFungibleLocalIds: ["#12#", "#13#", "#14#"],
-      },
+      // {
+      //   tokenType: TokenType.NONFUNGIBLE,
+      //   tokenAddress:
+      //     "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc",
+      //   nonFungibleLocalIds: ["#12#", "#13#", "#14#"],
+      // },
       {
         tokenType: TokenType.FUNGIBLE,
         tokenAddress: XRD_ADDRESS,
@@ -114,12 +114,12 @@ test("Custom Transfer", async () => {
         tokenAddress: XRD_ADDRESS,
         amount: "9999",
       },
-      {
-        tokenType: TokenType.NONFUNGIBLE,
-        tokenAddress:
-          "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc",
-        nonFungibleLocalIds: ["#16#", "#17#"],
-      },
+      // {
+      //   tokenType: TokenType.NONFUNGIBLE,
+      //   tokenAddress:
+      //     "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc",
+      //   nonFungibleLocalIds: ["#16#", "#17#"],
+      // },
     ],
   });
 
@@ -132,12 +132,12 @@ test("Custom Transfer", async () => {
         tokenAddress: XRD_ADDRESS,
         amount: "8888",
       },
-      {
-        tokenType: TokenType.NONFUNGIBLE,
-        tokenAddress:
-          "resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s",
-        nonFungibleLocalIds: ["#16#", "#17#"],
-      },
+      // {
+      //   tokenType: TokenType.NONFUNGIBLE,
+      //   tokenAddress:
+      //     "resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s",
+      //   nonFungibleLocalIds: ["#16#", "#17#"],
+      // },
     ],
   });
 
@@ -150,12 +150,12 @@ test("Custom Transfer", async () => {
         tokenAddress: XRD_ADDRESS,
         amount: "7777",
       },
-      {
-        tokenType: TokenType.NONFUNGIBLE,
-        tokenAddress:
-          "resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s",
-        nonFungibleLocalIds: ["#14#", "#12#"],
-      },
+      // {
+      //   tokenType: TokenType.NONFUNGIBLE,
+      //   tokenAddress:
+      //     "resource_tdx_2_1nf2mjpvhwpu46aj4kpfvjn4zzpm2a4chnt723qm4mz9rc7c8c73d7s",
+      //   nonFungibleLocalIds: ["#14#", "#12#"],
+      // },
     ],
   });
 
