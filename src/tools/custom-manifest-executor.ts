@@ -47,7 +47,13 @@ class CustomManifestExecutor {
 
         const intentSignaturesStep = manifestStep.manifest(manifest);
 
-        new Set(signatoryWallets).forEach((wallet) => {
+        const map = new Map<string, Wallet>();
+
+        signatoryWallets.forEach((wallet) => {
+          map.set(wallet.address, wallet);
+        });
+
+        map.forEach((wallet) => {
           intentSignaturesStep.sign(wallet.privateKey);
         });
 

@@ -13,15 +13,9 @@ class RadixNetworkChecker {
   }
 
   checkEntities(addresses: string[]) {
-    const deduplicatedAddresses: string[] = [];
-
-    new Set(addresses).forEach((address) =>
-      deduplicatedAddresses.push(address),
-    );
-
     const request: StateEntityDetailsOperationRequest = {
       stateEntityDetailsRequest: {
-        addresses: deduplicatedAddresses,
+        addresses: [...new Set(addresses)],
         aggregation_level: "Vault",
         opt_ins: {
           ancestor_identities: true,
@@ -38,15 +32,9 @@ class RadixNetworkChecker {
   }
 
   async checkResourcesOfAccounts(addresses: string[]) {
-    const deduplicatedAddresses: string[] = [];
-
-    new Set(addresses).forEach((address) =>
-      deduplicatedAddresses.push(address),
-    );
-
     const response = await selectNetwork(
       this.networkId,
-    ).state.getEntityDetailsVaultAggregated(deduplicatedAddresses, {
+    ).state.getEntityDetailsVaultAggregated([...new Set(addresses)], {
       explicitMetadata: ["name", "symbol"],
     });
 

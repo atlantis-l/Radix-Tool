@@ -175,7 +175,13 @@ class TokenSender {
 
       wallets.push(this.feePayerWallet);
 
-      new Set(wallets).forEach((wallet) => {
+      const map = new Map<string, Wallet>();
+
+      wallets.forEach((wallet) => {
+        map.set(wallet.address, wallet);
+      });
+
+      map.forEach((wallet) => {
         intentSignaturesStep.sign(wallet.privateKey);
       });
 
