@@ -7,7 +7,12 @@ import {
   ManifestBuilder,
   RadixEngineToolkit,
 } from "@radixdlt/radix-engine-toolkit";
-import { NetworkId, previewTransaction, RadixWalletGenerator } from "../src";
+import {
+  NetworkId,
+  getCurrentEpoch,
+  previewTransaction,
+  RadixWalletGenerator,
+} from "../src";
 
 const NETWORK_ID = NetworkId.Stokenet;
 
@@ -46,6 +51,7 @@ test("Transaction Preview", async () => {
     wallet.publicKey,
     [],
     [],
+    await getCurrentEpoch(NETWORK_ID),
   );
 
   console.log(result);

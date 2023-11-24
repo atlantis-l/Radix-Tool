@@ -1,6 +1,7 @@
 import {
   Status,
   NetworkId,
+  getCurrentEpoch,
   RadixNetworkChecker,
   RadixWalletGenerator,
   CustomManifestExecutor,
@@ -37,6 +38,7 @@ test("Custom Manifest Execute", async () => {
     manifestString,
     [wallet2],
     "Custom Manifest Execute",
+    await getCurrentEpoch(NETWORK_ID),
   );
 
   expect(result.status).toBe(Status.SUCCESS);
@@ -65,7 +67,11 @@ test("Execute Fee Preview", async () => {
 
   const executor = new CustomManifestExecutor(NETWORK_ID, wallet1);
 
-  const result = await executor.executePreview(manifestString, [wallet2]);
+  const result = await executor.executePreview(
+    manifestString,
+    [wallet2],
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   expect(Number(result.fee)).toBeGreaterThan(0);
 

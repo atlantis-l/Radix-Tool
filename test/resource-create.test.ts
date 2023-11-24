@@ -1,5 +1,6 @@
 import {
   NetworkId,
+  getCurrentEpoch,
   RadixNetworkChecker,
   RadixWalletGenerator,
   CustomManifestExecutor,
@@ -27,12 +28,21 @@ test("Create Fungible", async () => {
     path.join(__dirname, "radix-transaction-manifest/fungible-create.rtm"),
   ).toString("utf8");
 
-  const previewResult = await executor.executePreview(manifestString, []);
+  const previewResult = await executor.executePreview(
+    manifestString,
+    [],
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   console.log(`Preview Result: `, {});
   console.log(previewResult);
 
-  const result = await executor.execute(manifestString, [], message);
+  const result = await executor.execute(
+    manifestString,
+    [],
+    message,
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   await new Promise((r) => setTimeout(r, 5000));
 
@@ -52,12 +62,21 @@ test("Create Non Fungible", async () => {
     path.join(__dirname, "radix-transaction-manifest/non-fungible-create.rtm"),
   ).toString("utf8");
 
-  const previewResult = await executor.executePreview(manifestString, []);
+  const previewResult = await executor.executePreview(
+    manifestString,
+    [],
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   console.log(`Preview Result: `, {});
   console.log(previewResult);
 
-  const result = await executor.execute(manifestString, [], message);
+  const result = await executor.execute(
+    manifestString,
+    [],
+    message,
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   await new Promise((r) => setTimeout(r, 5000));
 

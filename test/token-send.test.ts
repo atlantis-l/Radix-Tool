@@ -4,6 +4,7 @@ import {
   NetworkId,
   TokenSender,
   CustomOption,
+  getCurrentEpoch,
   RadixWalletGenerator,
 } from "../src";
 import { RadixEngineToolkit } from "@radixdlt/radix-engine-toolkit";
@@ -177,7 +178,11 @@ test("Custom Transfer", async () => {
     transferInfos: [],
   });
 
-  const result = await sender.sendCustom(customOptions, message);
+  const result = await sender.sendCustom(
+    customOptions,
+    message,
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   expect(result.status).toBe(Status.SUCCESS);
 });

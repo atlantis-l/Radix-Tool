@@ -1,6 +1,7 @@
 import {
   Status,
   NetworkId,
+  getCurrentEpoch,
   PackageDeployer,
   RadixNetworkChecker,
   RadixWalletGenerator,
@@ -37,9 +38,15 @@ test("Package Deploy", async () => {
     rpd,
     globalId,
     message,
+    await getCurrentEpoch(NETWORK_ID),
   );
 
-  const result2 = await packageDeployer.deploy(wasm, rpd, message);
+  const result2 = await packageDeployer.deploy(
+    wasm,
+    rpd,
+    message,
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   expect(result1.status).toBe(Status.SUCCESS);
 
@@ -85,12 +92,21 @@ test("Deploy Preview", async () => {
 
   const rpd = readFileSync(path.join(__dirname, "package-deploy/hello.rpd"));
 
-  const result1 = await deployer.deployPreview(wasm, rpd);
+  const result1 = await deployer.deployPreview(
+    wasm,
+    rpd,
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   const globalId =
     "resource_tdx_2_1nta7utvejl0axmn3hj3tpheappgl9tu5kfwlsl0l5ykajh4zl44uuc:#16#";
 
-  const result2 = await deployer.deployWithOwnerPreview(wasm, rpd, globalId);
+  const result2 = await deployer.deployWithOwnerPreview(
+    wasm,
+    rpd,
+    globalId,
+    await getCurrentEpoch(NETWORK_ID),
+  );
 
   console.log(`DeployWithOwnerPreview: ${JSON.stringify(result2)}`);
   console.log(`DeployPreview: ${JSON.stringify(result1)}`);
