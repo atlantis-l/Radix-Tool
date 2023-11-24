@@ -6,10 +6,10 @@ declare class TokenSender {
     feePayerWallet: Wallet;
     feeLock: string;
     constructor(networkId: number, mainWallet: Wallet);
-    sendFungibleToken(toAddress: string, tokenAddress: string, amount: Amount, message: string | undefined): Promise<import("../models/result").Result>;
-    sendNonFungibleToken(toAddress: string, tokenAddress: string, nonFungibleLocalIds: string[], message: string | undefined): Promise<import("../models/result").Result>;
-    sendTokens(toAddress: string, transferInfos: TransferInfo[], message: string | undefined): Promise<import("../models/result").Result>;
-    sendCustom(customOptions: CustomOption[], message: string | undefined): Promise<import("../models/result").Result>;
-    sendCustomPreview(customOptions: CustomOption[]): Promise<import("../models").PreviewResult>;
+    sendFungibleToken(toAddress: string, tokenAddress: string, amount: Amount, message: string | undefined, currentEpoch: number): Promise<import("../models/result").Result>;
+    sendNonFungibleToken(toAddress: string, tokenAddress: string, nonFungibleLocalIds: string[], message: string | undefined, currentEpoch: number): Promise<import("../models/result").Result>;
+    sendTokens(toAddress: string, transferInfos: TransferInfo[], message: string | undefined, currentEpoch: number): Promise<import("../models/result").Result>;
+    sendCustom(customOptions: CustomOption[], message: string | undefined, currentEpoch: number): Promise<import("../models/result").Result>;
+    sendCustomPreview(customOptions: CustomOption[], currentEpoch: number): Promise<import("../models").PreviewResult>;
 }
 export { TokenSender };
