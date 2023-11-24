@@ -16,8 +16,8 @@ import { RadixWalletGenerator } from "./radix-wallet-generator";
 const NETWORK_ID = NetworkId.Stokenet;
 
 class XRDFaucet {
-  static async getXRD(toAddress: string) {
-    return processTransaction(NETWORK_ID, async (currentEpoch) => {
+  static async getXRD(toAddress: string, currentEpoch: number) {
+    return processTransaction(NETWORK_ID, async () => {
       const {
         componentAddresses: { faucet: FAUCET_ADDRESS },
       } = await RadixEngineToolkit.Utils.knownAddresses(NETWORK_ID);

@@ -13,6 +13,7 @@ import {
   nonFungibleLocalId,
   TransactionBuilder,
   generateRandomNonce,
+  PrivateKey,
 } from "@radixdlt/radix-engine-toolkit";
 import { previewTransaction, processTransaction } from "../common";
 import { CustomOption, Wallet, TokenType, TransferInfo } from "../models";
@@ -37,6 +38,7 @@ class TokenSender {
     tokenAddress: string,
     amount: Amount,
     message: string | undefined,
+    currentEpoch: number,
   ) {
     return this.sendCustom(
       [
@@ -53,6 +55,7 @@ class TokenSender {
         },
       ],
       message,
+      currentEpoch,
     );
   }
 
@@ -61,6 +64,7 @@ class TokenSender {
     tokenAddress: string,
     nonFungibleLocalIds: string[],
     message: string | undefined,
+    currentEpoch: number,
   ) {
     return this.sendCustom(
       [
@@ -77,6 +81,7 @@ class TokenSender {
         },
       ],
       message,
+      currentEpoch,
     );
   }
 
@@ -84,6 +89,7 @@ class TokenSender {
     toAddress: string,
     transferInfos: TransferInfo[],
     message: string | undefined,
+    currentEpoch: number,
   ) {
     return this.sendCustom(
       [
@@ -94,11 +100,16 @@ class TokenSender {
         },
       ],
       message,
+      currentEpoch,
     );
   }
 
-  sendCustom(customOptions: CustomOption[], message: string | undefined) {
-    return processTransaction(this.networkId, async (currentEpoch) => {
+  sendCustom(
+    customOptions: CustomOption[],
+    message: string | undefined,
+    currentEpoch: number,
+  ) {
+    return processTransaction(this.networkId, async () => {
       const manifestBuilder = new ManifestBuilder().callMethod(
         this.feePayerWallet.address,
         "lock_fee",
@@ -107,7 +118,19 @@ class TokenSender {
 
       const toAddressMap: Map<string, CustomOption[]> = new Map();
 
+      const addressAndPrivateKeyMap = new Map<string, PrivateKey>();
+
+      addressAndPrivateKeyMap.set(
+        this.feePayerWallet.address,
+        this.feePayerWallet.privateKey,
+      );
+
       customOptions.forEach((option) => {
+        addressAndPrivateKeyMap.set(
+          option.fromWallet.address,
+          option.fromWallet.privateKey,
+        );
+
         const options = toAddressMap.get(option.toAddress);
 
         if (options === undefined) {
@@ -172,25 +195,15 @@ class TokenSender {
         manifestBuilder.build(),
       );
 
-      const wallets = customOptions.map((option) => option.fromWallet);
-
-      wallets.push(this.feePayerWallet);
-
-      const map = new Map<string, Wallet>();
-
-      wallets.forEach((wallet) => {
-        map.set(wallet.address, wallet);
-      });
-
-      map.forEach((wallet) => {
-        intentSignaturesStep.sign(wallet.privateKey);
+      addressAndPrivateKeyMap.forEach((privateKey) => {
+        intentSignaturesStep.sign(privateKey);
       });
 
       return intentSignaturesStep.notarize(this.mainWallet.privateKey);
     });
   }
 
-  sendCustomPreview(customOptions: CustomOption[]) {
+  sendCustomPreview(customOptions: CustomOption[], currentEpoch: number) {
     const manifestBuilder = new ManifestBuilder().callMethod(
       this.feePayerWallet.address,
       "lock_fee",
@@ -199,7 +212,19 @@ class TokenSender {
 
     const toAddressMap: Map<string, CustomOption[]> = new Map();
 
+    const addressAndPrivateKeyMap = new Map<string, PublicKey>();
+
+    addressAndPrivateKeyMap.set(
+      this.feePayerWallet.address,
+      this.feePayerWallet.publicKey,
+    );
+
     customOptions.forEach((option) => {
+      addressAndPrivateKeyMap.set(
+        option.fromWallet.address,
+        option.fromWallet.publicKey,
+      );
+
       const options = toAddressMap.get(option.toAddress);
 
       if (options === undefined) {
@@ -244,22 +269,13 @@ class TokenSender {
 
     const manifest = manifestBuilder.build();
 
-    const wallets = customOptions.map((option) => option.fromWallet);
-
-    wallets.push(this.feePayerWallet);
-
-    const map = new Map<string, PublicKey>();
-
-    wallets.forEach((wallet) => {
-      map.set(wallet.address, wallet.publicKey);
-    });
-
     return previewTransaction(
       this.networkId,
       manifest,
       this.mainWallet.publicKey,
-      [...map.values()],
+      [...addressAndPrivateKeyMap.values()],
       [],
+      currentEpoch,
     );
   }
 }

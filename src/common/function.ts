@@ -59,14 +59,12 @@ function submitTransaction(
 
 async function processTransaction(
   networkId: number,
-  f: (currentEpoch: number) => Promise<NotarizedTransaction>,
+  f: () => Promise<NotarizedTransaction>,
 ): Promise<Result> {
   try {
     const NETWORK_API = selectNetwork(networkId);
 
-    const transaction = await generateTransaction(
-      await f(await getCurrentEpoch(networkId)),
-    );
+    const transaction = await generateTransaction(await f());
 
     const result = await submitTransaction(NETWORK_API, transaction);
 
@@ -93,10 +91,9 @@ async function previewTransaction(
   notaryPublicKey: PublicKey,
   signerPublicKeys: PublicKey[],
   blobsHex: string[],
+  currentEpoch: number,
 ) {
   const NETWORK_API = selectNetwork(networkId);
-
-  const currentEpoch = await getCurrentEpoch(networkId);
 
   manifest.instructions.kind === "Parsed" &&
     (await convertManifestTo("String", manifest, networkId));

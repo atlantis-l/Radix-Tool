@@ -31,8 +31,9 @@ class PackageDeployer {
     rpd: Buffer,
     nonFungibleGlobalId: string,
     message: string | undefined,
+    currentEpoch: number,
   ) {
-    return processTransaction(this.networkId, async (currentEpoch) => {
+    return processTransaction(this.networkId, async () => {
       const wasmHash = hash(wasm.toString("hex")).toString("hex");
 
       const decodedRpd = await RadixEngineToolkit.ManifestSbor.decodeToString(
@@ -94,8 +95,13 @@ class PackageDeployer {
     });
   }
 
-  async deploy(wasm: Buffer, rpd: Buffer, message: string | undefined) {
-    return processTransaction(this.networkId, async (currentEpoch) => {
+  async deploy(
+    wasm: Buffer,
+    rpd: Buffer,
+    message: string | undefined,
+    currentEpoch: number,
+  ) {
+    return processTransaction(this.networkId, async () => {
       const wasmHash = hash(wasm.toString("hex")).toString("hex");
 
       const decodedRpd = await RadixEngineToolkit.ManifestSbor.decodeToString(
@@ -154,6 +160,7 @@ class PackageDeployer {
     wasm: Buffer,
     rpd: Buffer,
     nonFungibleGlobalId: string,
+    currentEpoch: number,
   ) {
     const wasmHex = wasm.toString("hex");
 
@@ -203,10 +210,11 @@ class PackageDeployer {
       this.deployerWallet.publicKey,
       [this.feePayerWallet.publicKey],
       [wasmHex],
+      currentEpoch,
     );
   }
 
-  async deployPreview(wasm: Buffer, rpd: Buffer) {
+  async deployPreview(wasm: Buffer, rpd: Buffer, currentEpoch: number) {
     const wasmHex = wasm.toString("hex");
 
     const wasmHash = hash(wasmHex).toString("hex");
@@ -248,6 +256,7 @@ class PackageDeployer {
       this.deployerWallet.publicKey,
       [this.feePayerWallet.publicKey],
       [wasmHex],
+      currentEpoch,
     );
   }
 }

@@ -1,5 +1,6 @@
 import {
   PublicKey,
+  PrivateKey,
   TransactionHeader,
   TransactionBuilder,
   TransactionManifest,
@@ -21,8 +22,9 @@ class CustomManifestExecutor {
     manifestString: string,
     signatoryWallets: Wallet[],
     message: string | undefined,
+    currentEpoch: number,
   ) {
-    return processTransaction(this.networkId, async (currentEpoch) => {
+    return processTransaction(this.networkId, async () => {
       const header: TransactionHeader = {
         networkId: this.networkId,
         startEpochInclusive: currentEpoch,
@@ -41,29 +43,35 @@ class CustomManifestExecutor {
         blobs: [],
       };
 
-      return TransactionBuilder.new().then((builder) => {
-        const manifestStep = builder.header(header);
+      const builder = await TransactionBuilder.new();
 
-        message !== undefined && manifestStep.plainTextMessage(message);
+      const manifestStep = builder.header(header);
 
-        const intentSignaturesStep = manifestStep.manifest(manifest);
+      message !== undefined && manifestStep.plainTextMessage(message);
 
-        const map = new Map<string, Wallet>();
+      const intentSignaturesStep = manifestStep.manifest(manifest);
 
-        signatoryWallets.forEach((wallet) => {
-          map.set(wallet.address, wallet);
-        });
+      const map = new Map<string, PrivateKey>();
 
-        map.forEach((wallet) => {
-          intentSignaturesStep.sign(wallet.privateKey);
-        });
-
-        return intentSignaturesStep.notarize(this.executorWallet.privateKey);
+      signatoryWallets.forEach((wallet) => {
+        map.set(wallet.address, wallet.privateKey);
       });
+
+      map.forEach((privateKey) => {
+        intentSignaturesStep.sign(privateKey);
+      });
+
+      return await intentSignaturesStep.notarize(
+        this.executorWallet.privateKey,
+      );
     });
   }
 
-  executePreview(manifestString: string, signatoryWallets: Wallet[]) {
+  executePreview(
+    manifestString: string,
+    signatoryWallets: Wallet[],
+    currentEpoch: number,
+  ) {
     const manifest: TransactionManifest = {
       instructions: {
         kind: "String",
@@ -84,6 +92,7 @@ class CustomManifestExecutor {
       this.executorWallet.publicKey,
       [...map.values()],
       [],
+      currentEpoch,
     );
   }
 }
