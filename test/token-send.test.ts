@@ -180,6 +180,7 @@ test("Custom Transfer", async () => {
 
   const result = await sender.sendCustom(
     customOptions,
+    [wallet.privateKey, feePayer.privateKey],
     message,
     await getCurrentEpoch(NETWORK_ID),
   );

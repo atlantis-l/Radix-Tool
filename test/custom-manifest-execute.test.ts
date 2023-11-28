@@ -36,7 +36,7 @@ test("Custom Manifest Execute", async () => {
 
   const result = await executor.execute(
     manifestString,
-    [wallet2],
+    [wallet2.privateKey],
     "Custom Manifest Execute",
     await getCurrentEpoch(NETWORK_ID),
   );
@@ -69,7 +69,7 @@ test("Execute Fee Preview", async () => {
 
   const result = await executor.executePreview(
     manifestString,
-    [wallet2],
+    [wallet2.publicKey],
     await getCurrentEpoch(NETWORK_ID),
   );
 
