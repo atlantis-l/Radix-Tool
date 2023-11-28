@@ -20,7 +20,7 @@ class CustomManifestExecutor {
 
   execute(
     manifestString: string,
-    signatoryWallets: Wallet[],
+    signerPrivateKeys: PrivateKey[],
     message: string | undefined,
     currentEpoch: number,
   ) {
@@ -51,13 +51,7 @@ class CustomManifestExecutor {
 
       const intentSignaturesStep = manifestStep.manifest(manifest);
 
-      const map = new Map<string, PrivateKey>();
-
-      signatoryWallets.forEach((wallet) => {
-        map.set(wallet.address, wallet.privateKey);
-      });
-
-      map.forEach((privateKey) => {
+      signerPrivateKeys.forEach((privateKey) => {
         intentSignaturesStep.sign(privateKey);
       });
 
@@ -69,7 +63,7 @@ class CustomManifestExecutor {
 
   executePreview(
     manifestString: string,
-    signatoryWallets: Wallet[],
+    signerPublicKeys: PublicKey[],
     currentEpoch: number,
   ) {
     const manifest: TransactionManifest = {
@@ -80,17 +74,11 @@ class CustomManifestExecutor {
       blobs: [],
     };
 
-    const map = new Map<string, PublicKey>();
-
-    signatoryWallets.forEach((wallet) => {
-      map.set(wallet.address, wallet.publicKey);
-    });
-
     return previewTransaction(
       this.networkId,
       manifest,
       this.executorWallet.publicKey,
-      [...map.values()],
+      signerPublicKeys,
       [],
       currentEpoch,
     );

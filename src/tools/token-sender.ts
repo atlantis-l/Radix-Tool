@@ -37,6 +37,7 @@ class TokenSender {
     toAddress: string,
     tokenAddress: string,
     amount: Amount,
+    signerPrivateKeys: PrivateKey[],
     message: string | undefined,
     currentEpoch: number,
   ) {
@@ -54,6 +55,7 @@ class TokenSender {
           ],
         },
       ],
+      signerPrivateKeys,
       message,
       currentEpoch,
     );
@@ -63,6 +65,7 @@ class TokenSender {
     toAddress: string,
     tokenAddress: string,
     nonFungibleLocalIds: string[],
+    signerPrivateKeys: PrivateKey[],
     message: string | undefined,
     currentEpoch: number,
   ) {
@@ -80,6 +83,7 @@ class TokenSender {
           ],
         },
       ],
+      signerPrivateKeys,
       message,
       currentEpoch,
     );
@@ -88,6 +92,7 @@ class TokenSender {
   sendTokens(
     toAddress: string,
     transferInfos: TransferInfo[],
+    signerPrivateKeys: PrivateKey[],
     message: string | undefined,
     currentEpoch: number,
   ) {
@@ -99,6 +104,7 @@ class TokenSender {
           transferInfos: transferInfos,
         },
       ],
+      signerPrivateKeys,
       message,
       currentEpoch,
     );
@@ -106,6 +112,7 @@ class TokenSender {
 
   sendCustom(
     customOptions: CustomOption[],
+    signerPrivateKeys: PrivateKey[],
     message: string | undefined,
     currentEpoch: number,
   ) {
@@ -118,19 +125,7 @@ class TokenSender {
 
       const toAddressMap: Map<string, CustomOption[]> = new Map();
 
-      const addressAndPrivateKeyMap = new Map<string, PrivateKey>();
-
-      addressAndPrivateKeyMap.set(
-        this.feePayerWallet.address,
-        this.feePayerWallet.privateKey,
-      );
-
       customOptions.forEach((option) => {
-        addressAndPrivateKeyMap.set(
-          option.fromWallet.address,
-          option.fromWallet.privateKey,
-        );
-
         const options = toAddressMap.get(option.toAddress);
 
         if (options === undefined) {
@@ -195,7 +190,7 @@ class TokenSender {
         manifestBuilder.build(),
       );
 
-      addressAndPrivateKeyMap.forEach((privateKey) => {
+      signerPrivateKeys.forEach((privateKey) => {
         intentSignaturesStep.sign(privateKey);
       });
 
@@ -203,7 +198,11 @@ class TokenSender {
     });
   }
 
-  sendCustomPreview(customOptions: CustomOption[], currentEpoch: number) {
+  sendCustomPreview(
+    customOptions: CustomOption[],
+    signerPublicKeys: PublicKey[],
+    currentEpoch: number,
+  ) {
     const manifestBuilder = new ManifestBuilder().callMethod(
       this.feePayerWallet.address,
       "lock_fee",
@@ -212,19 +211,7 @@ class TokenSender {
 
     const toAddressMap: Map<string, CustomOption[]> = new Map();
 
-    const addressAndPrivateKeyMap = new Map<string, PublicKey>();
-
-    addressAndPrivateKeyMap.set(
-      this.feePayerWallet.address,
-      this.feePayerWallet.publicKey,
-    );
-
     customOptions.forEach((option) => {
-      addressAndPrivateKeyMap.set(
-        option.fromWallet.address,
-        option.fromWallet.publicKey,
-      );
-
       const options = toAddressMap.get(option.toAddress);
 
       if (options === undefined) {
@@ -273,7 +260,7 @@ class TokenSender {
       this.networkId,
       manifest,
       this.mainWallet.publicKey,
-      [...addressAndPrivateKeyMap.values()],
+      signerPublicKeys,
       [],
       currentEpoch,
     );
