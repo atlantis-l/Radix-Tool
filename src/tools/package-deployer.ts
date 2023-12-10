@@ -6,9 +6,8 @@ import {
   generateRandomNonce,
   ManifestSborStringRepresentation,
 } from "@radixdlt/radix-engine-toolkit";
-import { Buffer } from "buffer";
-import { Wallet } from "../models";
 import { hash } from "../common/hash";
+import { Ownership, Wallet } from "../models";
 import { previewTransaction, processTransaction } from "../common";
 
 const DEFAULT_FEE_LOCK = "200";
@@ -27,14 +26,20 @@ class PackageDeployer {
   }
 
   async deployWithOwner(
-    wasm: Buffer,
-    rpd: Buffer,
-    nonFungibleGlobalId: string,
+    wasm: Uint8Array,
+    rpd: Uint8Array,
+    ownership: Ownership,
+    ownerResource: string | undefined,
+    lock: boolean,
     message: string | undefined,
     currentEpoch: number,
   ) {
     return processTransaction(this.networkId, async () => {
-      const wasmHash = hash(wasm.toString("hex")).toString("hex");
+      const wasmHex = Array.from(wasm)
+        .map((uint8) => uint8.toString(16).padStart(2, "0"))
+        .join("");
+
+      const wasmHash = hash(wasmHex).toString("hex");
 
       const decodedRpd = await RadixEngineToolkit.ManifestSbor.decodeToString(
         rpd,
@@ -42,34 +47,114 @@ class PackageDeployer {
         ManifestSborStringRepresentation.ManifestString,
       );
 
-      const manifestString = `
+      let publishStr: string | undefined;
+
+      if (ownership === Ownership.AllowAll) {
+        if (lock) {
+          publishStr = `
+            Enum<1u8>(
+                Enum<0u8>()
+            )
+        `;
+        } else {
+          publishStr = `
+            Enum<2u8>(
+                Enum<0u8>()
+            )
+        `;
+        }
+      }
+
+      if (ownership === Ownership.Resource) {
+        if (lock) {
+          publishStr = `
+            Enum<1u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<1u8>(
+                                Address("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+        } else {
+          publishStr = `
+            Enum<2u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<1u8>(
+                                Address("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+        }
+      }
+
+      if (ownership === Ownership.NFT) {
+        if (lock) {
+          publishStr = `
+            Enum<1u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<0u8>(
+                                NonFungibleGlobalId("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+        } else {
+          publishStr = `
+            Enum<2u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<0u8>(
+                                NonFungibleGlobalId("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+        }
+      }
+
+      if (ownership === Ownership.None) {
+        publishStr = `
+          Enum<0u8>()
+      `;
+      }
+
+      let manifestStr = `
       CALL_METHOD
-      Address("${this.feePayerWallet.address}")
-      "lock_fee"
-      Decimal("${this.feeLock}");
+          Address("${this.feePayerWallet.address}")
+          "lock_fee"
+          Decimal("${this.feeLock}")
+      ;
 
       PUBLISH_PACKAGE_ADVANCED
-      Enum<OwnerRole::Fixed>(
-          Enum<AccessRule::Protected>(
-              Enum<AccessRuleNode::ProofRule>(
-                  Enum<ProofRule::Require>(
-                      Enum<ResourceOrNonFungible::NonFungible>(
-                          NonFungibleGlobalId("${nonFungibleGlobalId}")
-                      )
-                  )
-              )
-          )
-      )
-      ${decodedRpd}
-      Blob("${wasmHash}")
-      Map<String, Tuple>()
-      None;
+          ${publishStr}
+          ${decodedRpd}
+          Blob("${wasmHash}")
+          Map<String, Tuple>()
+          None
+      ;
       `;
 
       const manifest: TransactionManifest = {
         instructions: {
           kind: "String",
-          value: manifestString,
+          value: manifestStr,
         },
         blobs: [wasm],
       };
@@ -96,13 +181,17 @@ class PackageDeployer {
   }
 
   async deploy(
-    wasm: Buffer,
-    rpd: Buffer,
+    wasm: Uint8Array,
+    rpd: Uint8Array,
     message: string | undefined,
     currentEpoch: number,
   ) {
     return processTransaction(this.networkId, async () => {
-      const wasmHash = hash(wasm.toString("hex")).toString("hex");
+      const wasmHex = Array.from(wasm)
+        .map((uint8) => uint8.toString(16).padStart(2, "0"))
+        .join("");
+
+      const wasmHash = hash(wasmHex).toString("hex");
 
       const decodedRpd = await RadixEngineToolkit.ManifestSbor.decodeToString(
         rpd,
@@ -157,12 +246,16 @@ class PackageDeployer {
   }
 
   async deployWithOwnerPreview(
-    wasm: Buffer,
-    rpd: Buffer,
-    nonFungibleGlobalId: string,
+    wasm: Uint8Array,
+    rpd: Uint8Array,
+    ownership: Ownership,
+    ownerResource: string | undefined,
+    lock: boolean,
     currentEpoch: number,
   ) {
-    const wasmHex = wasm.toString("hex");
+    const wasmHex = Array.from(wasm)
+      .map((uint8) => uint8.toString(16).padStart(2, "0"))
+      .join("");
 
     const wasmHash = hash(wasmHex).toString("hex");
 
@@ -172,34 +265,114 @@ class PackageDeployer {
       ManifestSborStringRepresentation.ManifestString,
     );
 
-    const manifestString = `
-      CALL_METHOD
-      Address("${this.feePayerWallet.address}")
-      "lock_fee"
-      Decimal("${this.feeLock}");
+    let publishStr: string | undefined;
 
-      PUBLISH_PACKAGE_ADVANCED
-      Enum<OwnerRole::Fixed>(
-          Enum<AccessRule::Protected>(
-              Enum<AccessRuleNode::ProofRule>(
-                  Enum<ProofRule::Require>(
-                      Enum<ResourceOrNonFungible::NonFungible>(
-                          NonFungibleGlobalId("${nonFungibleGlobalId}")
-                      )
-                  )
-              )
-          )
-      )
-      ${decodedRpd}
-      Blob("${wasmHash}")
-      Map<String, Tuple>()
-      None;
+    if (ownership === Ownership.AllowAll) {
+      if (lock) {
+        publishStr = `
+            Enum<1u8>(
+                Enum<0u8>()
+            )
+        `;
+      } else {
+        publishStr = `
+            Enum<2u8>(
+                Enum<0u8>()
+            )
+        `;
+      }
+    }
+
+    if (ownership === Ownership.Resource) {
+      if (lock) {
+        publishStr = `
+            Enum<1u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<1u8>(
+                                Address("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+      } else {
+        publishStr = `
+            Enum<2u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<1u8>(
+                                Address("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+      }
+    }
+
+    if (ownership === Ownership.NFT) {
+      if (lock) {
+        publishStr = `
+            Enum<1u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<0u8>(
+                                NonFungibleGlobalId("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+      } else {
+        publishStr = `
+            Enum<2u8>(
+                Enum<2u8>(
+                    Enum<0u8>(
+                        Enum<0u8>(
+                            Enum<0u8>(
+                                NonFungibleGlobalId("${ownerResource}")
+                            )
+                        )
+                    )
+                )
+            )
+        `;
+      }
+    }
+
+    if (ownership === Ownership.None) {
+      publishStr = `
+          Enum<0u8>()
       `;
+    }
+
+    let manifestStr = `
+    CALL_METHOD
+        Address("${this.feePayerWallet.address}")
+        "lock_fee"
+        Decimal("${this.feeLock}")
+    ;
+
+    PUBLISH_PACKAGE_ADVANCED
+        ${publishStr}
+        ${decodedRpd}
+        Blob("${wasmHash}")
+        Map<String, Tuple>()
+        None
+    ;
+    `;
 
     const manifest: TransactionManifest = {
       instructions: {
         kind: "String",
-        value: manifestString,
+        value: manifestStr,
       },
       blobs: [],
     };
@@ -214,8 +387,10 @@ class PackageDeployer {
     );
   }
 
-  async deployPreview(wasm: Buffer, rpd: Buffer, currentEpoch: number) {
-    const wasmHex = wasm.toString("hex");
+  async deployPreview(wasm: Uint8Array, rpd: Uint8Array, currentEpoch: number) {
+    const wasmHex = Array.from(wasm)
+      .map((uint8) => uint8.toString(16).padStart(2, "0"))
+      .join("");
 
     const wasmHash = hash(wasmHex).toString("hex");
 
