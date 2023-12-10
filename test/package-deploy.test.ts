@@ -36,7 +36,9 @@ test("Package Deploy", async () => {
   const result1 = await packageDeployer.deployWithOwner(
     wasm,
     rpd,
+    2,
     globalId,
+    true,
     message,
     await getCurrentEpoch(NETWORK_ID),
   );
@@ -104,7 +106,9 @@ test("Deploy Preview", async () => {
   const result2 = await deployer.deployWithOwnerPreview(
     wasm,
     rpd,
+    0,
     globalId,
+    false,
     await getCurrentEpoch(NETWORK_ID),
   );
 
