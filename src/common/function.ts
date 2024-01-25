@@ -137,11 +137,33 @@ async function previewTransaction(
     //@ts-ignore
   } = preview.receipt.fee_summary;
 
+  const stateUpdates: {
+    created_substates: [];
+    deleted_partitions: [];
+    deleted_substates: [];
+    new_global_entities: [];
+    updated_substates: [];
+    //@ts-ignore
+  } = preview.receipt.state_updates;
+
+  const stateAmount =
+    stateUpdates.created_substates.length +
+    stateUpdates.deleted_partitions.length +
+    stateUpdates.deleted_substates.length +
+    stateUpdates.new_global_entities.length +
+    stateUpdates.updated_substates.length;
+
+  const signerAmount = signerPublicKeys.length + 1;
+
   let fee = new Decimal(feeSummary.xrd_total_execution_cost)
     .plus(feeSummary.xrd_total_storage_cost)
     .plus(feeSummary.xrd_total_tipping_cost)
     .plus(feeSummary.xrd_total_royalty_cost)
-    .plus(feeSummary.xrd_total_finalization_cost);
+    .plus(feeSummary.xrd_total_finalization_cost)
+    .plus(new Decimal("0.00000005").mul("7000").mul(signerAmount))
+    .plus(
+      new Decimal("0.00009536743").mul("70").mul(stateAmount + signerAmount),
+    );
 
   return {
     fee: fee.toString(),
