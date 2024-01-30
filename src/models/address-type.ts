@@ -1,0 +1,25 @@
+enum AddressType {
+  GlobalPackage = 0b00001101,
+  GlobalConsensusManager = 0b10000110,
+  GlobalValidator = 0b10000011,
+  GlobalTransactionTracker = 0b10000010,
+  GlobalGenericComponent = 0b11000000,
+  GlobalAccount = 0b11000001,
+  GlobalIdentity = 0b11000010,
+  GlobalAccessController = 0b11000011,
+  GlobalOneResourcePool = 0b11000100,
+  GlobalTwoResourcePool = 0b11000101,
+  GlobalMultiResourcePool = 0b11000110,
+  GlobalVirtualSecp256k1Account = 0b11010001,
+  GlobalVirtualSecp256k1Identity = 0b11010010,
+  GlobalVirtualEd25519Account = 0b01010001,
+  GlobalVirtualEd25519Identity = 0b01010010,
+  GlobalFungibleResourceManager = 0b01011101,
+  InternalFungibleVault = 0b01011000,
+  GlobalNonFungibleResourceManager = 0b10011010,
+  InternalNonFungibleVault = 0b10011000,
+  InternalGenericComponent = 0b11111000,
+  InternalKeyValueStore = 0b10110000,
+}
+
+export { AddressType };

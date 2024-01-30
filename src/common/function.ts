@@ -14,12 +14,116 @@ import {
 } from "@radixdlt/babylon-gateway-api-sdk";
 import Decimal from "decimal.js";
 import { NETWORK_API } from "./gateway-api";
-import { PreviewResult, Result, Status } from "../models";
+import { base32, bech32m } from "@scure/base";
+import { PreviewResult, Result, Status, AddressType } from "../models";
 
 function selectNetwork(networkId: number) {
   return networkId === NetworkId.Mainnet
     ? NETWORK_API.MAINNET_API
     : NETWORK_API.STOKENET_API;
+}
+
+async function formatConvert(str: string, networkId: number) {
+  if (str.includes("_")) {
+    // Address To Hex
+    const chatArr: string[] = [];
+
+    (await RadixEngineToolkit.Address.decode(str)).data.forEach((v) => {
+      chatArr.push(v.toString(16).padStart(2, "0"));
+    });
+
+    return chatArr.join("");
+  } else {
+    // Hex To Address
+    const fromHexString = (hex: string) => {
+      const r = hex.match(/.{1,2}/g);
+      //@ts-ignore
+      return Uint8Array.from(r.map((byte) => parseInt(byte, 16)));
+    };
+
+    const uint8Arr = fromHexString(str) as Uint8Array;
+
+    const numArr: number[] = [];
+
+    const base32_str = base32.encode(uint8Arr).toLowerCase();
+
+    for (let i = 0; i < base32_str.length; i++) {
+      const code = base32_str.charCodeAt(i);
+
+      if (code >= 97 && code <= 122) {
+        numArr.push(code - 97);
+      } else if (code >= 50 && code <= 55) {
+        numArr.push(code - 24);
+      }
+    }
+
+    const MAINNET_FIX = "_rdx";
+    const STOKENET_FIX = "_tdx_2_";
+
+    const NETWORK_FIX = networkId - 1 ? STOKENET_FIX : MAINNET_FIX;
+
+    if (uint8Arr && uint8Arr.length === 30) {
+      let prefix = "";
+
+      switch (uint8Arr[0]) {
+        case AddressType.GlobalAccessController:
+          prefix = `accesscontroller${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalConsensusManager:
+          prefix = `consensusmanager${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalTransactionTracker:
+          prefix = `transactiontracker${NETWORK_FIX}`;
+          break;
+        case AddressType.InternalGenericComponent:
+          prefix = `internal_component${NETWORK_FIX}`;
+          break;
+        case AddressType.InternalKeyValueStore:
+          prefix = `internal_keyvaluestore${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalPackage:
+          prefix = `package${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalGenericComponent:
+          prefix = `component${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalValidator:
+          prefix = `validator${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalOneResourcePool:
+        case AddressType.GlobalTwoResourcePool:
+        case AddressType.GlobalMultiResourcePool:
+          prefix = `pool${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalAccount:
+        case AddressType.GlobalVirtualEd25519Account:
+        case AddressType.GlobalVirtualSecp256k1Account:
+          prefix = `account${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalIdentity:
+        case AddressType.GlobalVirtualEd25519Identity:
+        case AddressType.GlobalVirtualSecp256k1Identity:
+          prefix = `identity${NETWORK_FIX}`;
+          break;
+        case AddressType.GlobalFungibleResourceManager:
+        case AddressType.GlobalNonFungibleResourceManager:
+          prefix = `resource${NETWORK_FIX}`;
+          break;
+        case AddressType.InternalFungibleVault:
+        case AddressType.InternalNonFungibleVault:
+          prefix = `internal_vault${NETWORK_FIX}`;
+          break;
+      }
+
+      if (prefix.length) {
+        return bech32m.encode(prefix, numArr);
+      } else {
+        throw new Error("error format");
+      }
+    } else {
+      throw new Error("error format");
+    }
+  }
 }
 
 async function getCurrentEpoch(networkId: number) {
@@ -188,6 +292,7 @@ async function convertManifestTo(
 
 export {
   selectNetwork,
+  formatConvert,
   getCurrentEpoch,
   convertManifestTo,
   previewTransaction,
