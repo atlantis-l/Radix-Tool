@@ -250,6 +250,12 @@ async function previewTransaction(
     //@ts-ignore
   } = preview.receipt.state_updates;
 
+  const costingParameters: {
+    execution_cost_unit_price: string;
+    xrd_storage_price: string;
+    //@ts-ignore
+  } = preview.receipt.costing_parameters;
+
   const stateAmount =
     stateUpdates.created_substates.length +
     stateUpdates.deleted_partitions.length +
@@ -264,9 +270,15 @@ async function previewTransaction(
     .plus(feeSummary.xrd_total_tipping_cost)
     .plus(feeSummary.xrd_total_royalty_cost)
     .plus(feeSummary.xrd_total_finalization_cost)
-    .plus(new Decimal("0.00000005").mul("7000").mul(signerAmount))
     .plus(
-      new Decimal("0.00009536743").mul("70").mul(stateAmount + signerAmount),
+      new Decimal(costingParameters.execution_cost_unit_price)
+        .mul("7000")
+        .mul(signerAmount),
+    )
+    .plus(
+      new Decimal(costingParameters.xrd_storage_price)
+        .mul("70")
+        .mul(stateAmount + signerAmount),
     );
 
   return {
