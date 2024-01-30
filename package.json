@@ -1,6 +1,6 @@
 {
   "name": "@atlantis-l/radix-tool",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "A tool to interact with the radix network",
   "main": "dist/radix-tool.umd.cjs",
   "types": "dist/index.d.ts",
@@ -42,6 +42,7 @@
     "@noble/curves": "^1.2.0",
     "@radixdlt/babylon-gateway-api-sdk": "^1.2.0",
     "@radixdlt/radix-engine-toolkit": "^1.0.3",
+    "@scure/base": "^1.1.5",
     "buffer": "^6.0.3"
   }
 }
