@@ -67,55 +67,56 @@ async function formatConvert(str: string, networkId: number) {
 
       switch (uint8Arr[0]) {
         case AddressType.GlobalAccessController:
-          prefix = `accesscontroller${NETWORK_FIX}`;
+          prefix = "accesscontroller";
           break;
         case AddressType.GlobalConsensusManager:
-          prefix = `consensusmanager${NETWORK_FIX}`;
+          prefix = "consensusmanager";
           break;
         case AddressType.GlobalTransactionTracker:
-          prefix = `transactiontracker${NETWORK_FIX}`;
+          prefix = "transactiontracker";
           break;
         case AddressType.InternalGenericComponent:
-          prefix = `internal_component${NETWORK_FIX}`;
+          prefix = "internal_component";
           break;
         case AddressType.InternalKeyValueStore:
-          prefix = `internal_keyvaluestore${NETWORK_FIX}`;
+          prefix = "internal_keyvaluestore";
           break;
         case AddressType.GlobalPackage:
-          prefix = `package${NETWORK_FIX}`;
+          prefix = "package";
           break;
         case AddressType.GlobalGenericComponent:
-          prefix = `component${NETWORK_FIX}`;
+          prefix = "component";
           break;
         case AddressType.GlobalValidator:
-          prefix = `validator${NETWORK_FIX}`;
+          prefix = "validator";
           break;
         case AddressType.GlobalOneResourcePool:
         case AddressType.GlobalTwoResourcePool:
         case AddressType.GlobalMultiResourcePool:
-          prefix = `pool${NETWORK_FIX}`;
+          prefix = "pool";
           break;
         case AddressType.GlobalAccount:
         case AddressType.GlobalVirtualEd25519Account:
         case AddressType.GlobalVirtualSecp256k1Account:
-          prefix = `account${NETWORK_FIX}`;
+          prefix = "account";
           break;
         case AddressType.GlobalIdentity:
         case AddressType.GlobalVirtualEd25519Identity:
         case AddressType.GlobalVirtualSecp256k1Identity:
-          prefix = `identity${NETWORK_FIX}`;
+          prefix = "identity";
           break;
         case AddressType.GlobalFungibleResourceManager:
         case AddressType.GlobalNonFungibleResourceManager:
-          prefix = `resource${NETWORK_FIX}`;
+          prefix = "resource";
           break;
         case AddressType.InternalFungibleVault:
         case AddressType.InternalNonFungibleVault:
-          prefix = `internal_vault${NETWORK_FIX}`;
+          prefix = "internal_vault";
           break;
       }
 
       if (prefix.length) {
+        prefix += NETWORK_FIX;
         return bech32m.encode(prefix, numArr);
       } else {
         throw new Error("error format");

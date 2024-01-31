@@ -7,13 +7,20 @@ test("Format Convert", async () => {
   const hexString =
     "516ac882c5b214c281465a20c89320171b9616d6cb8b1902fd386f8469d0";
 
+  console.log(`Raw Account:${address}`);
+  console.log(`Raw HexString:${hexString}`);
+
   const networkId = 2;
 
   let result = await formatConvert(address, networkId);
 
+  console.log(`Result HexString:${result}`);
+
   expect(result).toEqual(hexString);
 
   result = await formatConvert(hexString, networkId);
+
+  console.log(`Result Account:${result}`);
 
   expect(result).toEqual(address);
 });
