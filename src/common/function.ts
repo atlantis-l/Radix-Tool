@@ -23,7 +23,7 @@ function selectNetwork(networkId: number) {
     : NETWORK_API.STOKENET_API;
 }
 
-async function formatConvert(str: string, networkId: number) {
+async function formatConvert(str: string) {
   if (str.includes("_")) {
     // Address To Hex
     const chatArr: string[] = [];
@@ -58,9 +58,8 @@ async function formatConvert(str: string, networkId: number) {
     }
 
     const MAINNET_FIX = "_rdx";
+    const SIMULATOR_FIX = "_sim";
     const STOKENET_FIX = "_tdx_2_";
-
-    const NETWORK_FIX = networkId - 1 ? STOKENET_FIX : MAINNET_FIX;
 
     if (uint8Arr && uint8Arr.length === 30) {
       let prefix = "";
@@ -116,8 +115,11 @@ async function formatConvert(str: string, networkId: number) {
       }
 
       if (prefix.length) {
-        prefix += NETWORK_FIX;
-        return bech32m.encode(prefix, numArr);
+        return {
+          mainnet_address: bech32m.encode(prefix + MAINNET_FIX, numArr),
+          stokenet_address: bech32m.encode(prefix + STOKENET_FIX, numArr),
+          simulator_address: bech32m.encode(prefix + SIMULATOR_FIX, numArr),
+        };
       } else {
         throw new Error("error format");
       }
