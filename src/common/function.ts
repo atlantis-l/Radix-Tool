@@ -290,6 +290,10 @@ async function previewTransaction(
     status: preview.receipt.status,
     //@ts-ignore
     errorMessage: preview.receipt.error_message,
+    //@ts-ignore
+    feeSummary: preview.receipt.fee_summary,
+    //@ts-ignore
+    costingParameters: preview.receipt.costing_parameters,
   } as PreviewResult;
 }
 
